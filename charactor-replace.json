@@ -1,0 +1,2666 @@
+{
+  "id": "5d038183-fc0d-44f6-9647-4aa25c07f3f8",
+  "revision": 0,
+  "last_node_id": 539,
+  "last_link_id": 827,
+  "nodes": [
+    {
+      "id": 520,
+      "type": "MarkdownNote",
+      "pos": [
+        477.80958665981444,
+        3098.197045133152
+      ],
+      "size": [
+        732.421875,
+        2673.078125
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Note: Model links",
+      "properties": {},
+      "widgets_values": [
+        "## Character Replacement with Rough Pose Reference\n\nThis workflow uses Qwen Image 2.1 Edit to generate polished character illustrations from a rough pose/composition reference and one or more character design references.\n\nImage 01 provides the pose and composition, while Image 02 and later images provide the character designs.\n\nThe workflow separates reusable rules, scene instructions, and character-specific specifications so that characters and scenes can be changed independently.\n\n## Reference Image Roles\n\n**Image 01 — Rough Pose / Composition Reference**\n\nImage 01 defines:\n\n- Pose\n- Composition\n- Camera angle\n- Perspective and foreshortening\n- Character placement\n- Depth and overlap\n- Spatial relationships\n\nThe visual appearance of the rough drawing is not intended to appear in the final image.\n\nThe rough may be a hand-drawn sketch, stick figure, pose mannequin, or other simplified drawing.\n\n**Image 02 and later — Character Design References**\n\nCharacter references are assigned in input order:\n\n- Image 02 → Character A\n- Image 03 → Character B\n- Image 04 → Character C\n- Image 05 → Character D\n- ...\n\nThese images define the appearance and identity of each character, including face, age, body proportions, hairstyle, clothing, colors, accessories, and distinctive features.\n\n## Prompt Structure\n\nPositive and negative prompts are divided into three layers:\n\n- **COMMON** — Rules shared by all generations and reference-image roles.\n- **SCENE** — Current action, pose assignment, interaction, and expression.\n- **CHARACTER** — Character-specific appearance and constraints loaded from Character Packages.\n\nThe workflow combines them in the following order:\n\nCOMMON → SCENE → CHARACTER\n\nPrompt contents are defined directly in the workflow and Character Package files.\n\n## Character Packages\n\nEach character is stored as an independent package.\n\nEach package contains:\n\n- `image.png` — Authoritative character design reference.\n- `positive.txt` — Character-specific appearance and important visual features.\n- `negative.txt` — Character-specific constraints and known failure cases.\n\nExample structure:\n\npackages/  \n　character_01/  \n　　image.png  \n　　positive.txt  \n　　negative.txt  \n　character_02/  \n　　image.png  \n　　positive.txt  \n　　negative.txt  \n\n## Multi Prompt Package\n\nThe Multi Prompt Package Loader loads selected Character Packages and automatically assigns Character labels.\n\nEmpty or disabled package slots are removed before assignment.\n\nThe remaining packages are assigned continuously:\n\n1st active package → Character A → Image 02  \n2nd active package → Character B → Image 03  \n3rd active package → Character C → Image 04  \n4th active package → Character D → Image 05  \n...\n\nPackage slot numbers therefore do not determine Character labels.\n\nThis allows the number and selection of characters to change while keeping the Character/Image relationship consistent.\n\n## Rough Image Guidelines\n\nImage 01 should primarily describe geometry rather than character appearance.\n\nUseful information includes:\n\n- Head position and direction\n- Torso orientation\n- Shoulder and hip orientation\n- Arm and leg positions\n- Center of gravity\n- Camera angle\n- Perspective\n- Foreground/background relationships\n- Character-to-character positioning\n\nDetailed faces, hairstyles, clothing, accessories, and character-specific features should generally be left to the character reference images.\n\n## Reference Priority\n\nThe workflow follows this separation:\n\nImage 01 → Pose / Composition / Camera / Geometry\n\nImage 02+ → Character Identity / Character Design\n\nSCENE → Action / Interaction / Expression\n\nCharacter Package → Character-Specific Details / Constraints\n\nIn short:\n\n**Image 01 = WHERE / HOW**  \n**Image 02+ = WHO**  \n**SCENE = WHAT IS HAPPENING**\n\n## Custom Nodes\n\nThis workflow uses the custom **Multi Prompt Package Loader**.\n\nThe loader reads character reference images and character-specific positive/negative prompts from Character Package directories.\n\nMake sure the custom node is installed before loading the workflow.\n\n## Model Links\n\n- Hugging Face: Comfy-Org/Qwen-Image-2.1\n- ModelScope: Comfy-Org/Qwen-Image-2.1\n\n**diffusion_models**\n\n- qwen_image_2.1_bf16.safetensors\n- qwen_image_2.1_int8_convrot.safetensors\n\n**text_encoders**\n\n- qwen3vl_8b_bf16.safetensors\n- qwen3vl_8b_int8_convrot.safetensors\n\n**vae**\n\n- qwen_image_2.1_vae_bf16.safetensors\n\n## Model Storage Location\n\nComfyUI/  \n　models/  \n　　diffusion_models/  \n　　　qwen_image_2.1_bf16.safetensors  \n　　　qwen_image_2.1_int8_convrot.safetensors  \n　　text_encoders/  \n　　　qwen3vl_8b_bf16.safetensors  \n　　　qwen3vl_8b_int8_convrot.safetensors  \n　　vae/  \n　　　qwen_image_2.1_vae_bf16.safetensors  \n\n## Notes\n\nKeep the responsibilities of the three prompt layers separate. Avoid duplicating the same instructions across COMMON, SCENE, and CHARACTER.\n\nWhen correcting generation failures:\n\n- Errors affecting most generations belong in **COMMON**.\n- Errors specific to one scene belong in **SCENE**.\n- Errors specific to one character belong in that **Character Package**.\n\nThis keeps the workflow reusable as the number of characters and scenes increases.\n\n## Report Issue\n\nPlease update ComfyUI first and make sure all required Qwen Image 2.1 models are installed.\n\n- Cannot run / runtime errors: ComfyUI/issues\n- UI / frontend issues: ComfyUI_frontend/issues"
+      ],
+      "widgets_values_named": {
+        "text": "## Character Replacement with Rough Pose Reference\n\nThis workflow uses Qwen Image 2.1 Edit to generate polished character illustrations from a rough pose/composition reference and one or more character design references.\n\nImage 01 provides the pose and composition, while Image 02 and later images provide the character designs.\n\nThe workflow separates reusable rules, scene instructions, and character-specific specifications so that characters and scenes can be changed independently.\n\n## Reference Image Roles\n\n**Image 01 — Rough Pose / Composition Reference**\n\nImage 01 defines:\n\n- Pose\n- Composition\n- Camera angle\n- Perspective and foreshortening\n- Character placement\n- Depth and overlap\n- Spatial relationships\n\nThe visual appearance of the rough drawing is not intended to appear in the final image.\n\nThe rough may be a hand-drawn sketch, stick figure, pose mannequin, or other simplified drawing.\n\n**Image 02 and later — Character Design References**\n\nCharacter references are assigned in input order:\n\n- Image 02 → Character A\n- Image 03 → Character B\n- Image 04 → Character C\n- Image 05 → Character D\n- ...\n\nThese images define the appearance and identity of each character, including face, age, body proportions, hairstyle, clothing, colors, accessories, and distinctive features.\n\n## Prompt Structure\n\nPositive and negative prompts are divided into three layers:\n\n- **COMMON** — Rules shared by all generations and reference-image roles.\n- **SCENE** — Current action, pose assignment, interaction, and expression.\n- **CHARACTER** — Character-specific appearance and constraints loaded from Character Packages.\n\nThe workflow combines them in the following order:\n\nCOMMON → SCENE → CHARACTER\n\nPrompt contents are defined directly in the workflow and Character Package files.\n\n## Character Packages\n\nEach character is stored as an independent package.\n\nEach package contains:\n\n- `image.png` — Authoritative character design reference.\n- `positive.txt` — Character-specific appearance and important visual features.\n- `negative.txt` — Character-specific constraints and known failure cases.\n\nExample structure:\n\npackages/  \n　character_01/  \n　　image.png  \n　　positive.txt  \n　　negative.txt  \n　character_02/  \n　　image.png  \n　　positive.txt  \n　　negative.txt  \n\n## Multi Prompt Package\n\nThe Multi Prompt Package Loader loads selected Character Packages and automatically assigns Character labels.\n\nEmpty or disabled package slots are removed before assignment.\n\nThe remaining packages are assigned continuously:\n\n1st active package → Character A → Image 02  \n2nd active package → Character B → Image 03  \n3rd active package → Character C → Image 04  \n4th active package → Character D → Image 05  \n...\n\nPackage slot numbers therefore do not determine Character labels.\n\nThis allows the number and selection of characters to change while keeping the Character/Image relationship consistent.\n\n## Rough Image Guidelines\n\nImage 01 should primarily describe geometry rather than character appearance.\n\nUseful information includes:\n\n- Head position and direction\n- Torso orientation\n- Shoulder and hip orientation\n- Arm and leg positions\n- Center of gravity\n- Camera angle\n- Perspective\n- Foreground/background relationships\n- Character-to-character positioning\n\nDetailed faces, hairstyles, clothing, accessories, and character-specific features should generally be left to the character reference images.\n\n## Reference Priority\n\nThe workflow follows this separation:\n\nImage 01 → Pose / Composition / Camera / Geometry\n\nImage 02+ → Character Identity / Character Design\n\nSCENE → Action / Interaction / Expression\n\nCharacter Package → Character-Specific Details / Constraints\n\nIn short:\n\n**Image 01 = WHERE / HOW**  \n**Image 02+ = WHO**  \n**SCENE = WHAT IS HAPPENING**\n\n## Custom Nodes\n\nThis workflow uses the custom **Multi Prompt Package Loader**.\n\nThe loader reads character reference images and character-specific positive/negative prompts from Character Package directories.\n\nMake sure the custom node is installed before loading the workflow.\n\n## Model Links\n\n- Hugging Face: Comfy-Org/Qwen-Image-2.1\n- ModelScope: Comfy-Org/Qwen-Image-2.1\n\n**diffusion_models**\n\n- qwen_image_2.1_bf16.safetensors\n- qwen_image_2.1_int8_convrot.safetensors\n\n**text_encoders**\n\n- qwen3vl_8b_bf16.safetensors\n- qwen3vl_8b_int8_convrot.safetensors\n\n**vae**\n\n- qwen_image_2.1_vae_bf16.safetensors\n\n## Model Storage Location\n\nComfyUI/  \n　models/  \n　　diffusion_models/  \n　　　qwen_image_2.1_bf16.safetensors  \n　　　qwen_image_2.1_int8_convrot.safetensors  \n　　text_encoders/  \n　　　qwen3vl_8b_bf16.safetensors  \n　　　qwen3vl_8b_int8_convrot.safetensors  \n　　vae/  \n　　　qwen_image_2.1_vae_bf16.safetensors  \n\n## Notes\n\nKeep the responsibilities of the three prompt layers separate. Avoid duplicating the same instructions across COMMON, SCENE, and CHARACTER.\n\nWhen correcting generation failures:\n\n- Errors affecting most generations belong in **COMMON**.\n- Errors specific to one scene belong in **SCENE**.\n- Errors specific to one character belong in that **Character Package**.\n\nThis keeps the workflow reusable as the number of characters and scenes increases.\n\n## Report Issue\n\nPlease update ComfyUI first and make sure all required Qwen Image 2.1 models are installed.\n\n- Cannot run / runtime errors: ComfyUI/issues\n- UI / frontend issues: ComfyUI_frontend/issues"
+      },
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 521,
+      "type": "LoadImage",
+      "pos": [
+        1313.138762956016,
+        3326.76504502688
+      ],
+      "size": [
+        290,
+        322
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            802,
+            809
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "pose.png",
+        "image"
+      ],
+      "widgets_values_named": {
+        "image": "pose.png",
+        "upload": "image"
+      }
+    },
+    {
+      "id": 522,
+      "type": "ResolutionSelector",
+      "pos": [
+        2672.1765199560155,
+        4231.918794026881
+      ],
+      "size": [
+        300,
+        190
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "showAdvanced": true,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [
+            800
+          ]
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [
+            801
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ResolutionSelector"
+      },
+      "widgets_values": [
+        "1:1 (Square)",
+        4,
+        32
+      ],
+      "widgets_values_named": {
+        "aspect_ratio": "1:1 (Square)",
+        "megapixels": 4,
+        "multiple": 32
+      }
+    },
+    {
+      "id": 523,
+      "type": "f1e638e6-5fbc-486c-a42a-315bbdc10d8b",
+      "pos": [
+        2694.2698934194523,
+        3342.2276789991083
+      ],
+      "size": [
+        420,
+        766
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "positive_prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": 798
+        },
+        {
+          "name": "negative_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "negative_prompt"
+          },
+          "link": 799
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          },
+          "link": null
+        },
+        {
+          "label": "custom_size",
+          "name": "switch",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "switch"
+          },
+          "link": null
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 800
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 801
+        },
+        {
+          "label": "sampler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          },
+          "link": null
+        },
+        {
+          "label": "scheduler",
+          "name": "scheduler_1",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler_1"
+          },
+          "link": null
+        },
+        {
+          "label": "cache_device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          },
+          "link": null
+        },
+        {
+          "label": "dtype",
+          "name": "dtype",
+          "type": "COMBO",
+          "widget": {
+            "name": "dtype"
+          },
+          "link": null
+        },
+        {
+          "label": "image_1",
+          "name": "images.image_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 802
+        },
+        {
+          "label": "image_2",
+          "name": "images.image_2",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 803
+        },
+        {
+          "label": "image_3",
+          "name": "images.image_3",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 804
+        },
+        {
+          "label": "image_4",
+          "name": "images.image_4",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 805
+        },
+        {
+          "label": "image_5",
+          "name": "images.image_5_1",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 806
+        },
+        {
+          "label": "image_6",
+          "name": "images.image_6",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 807
+        },
+        {
+          "label": "image_7",
+          "name": "images.image_7",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "label": "image_8",
+          "name": "images.image_8",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "label": "image_9",
+          "name": "images.image_9",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "label": "image_10",
+          "name": "images.image_10",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            808
+          ]
+        }
+      ],
+      "properties": {
+        "previewExposures": []
+      },
+      "widgets_values": [
+        0,
+        "",
+        "",
+        1,
+        25,
+        false,
+        1024,
+        1024,
+        "euler",
+        "simple",
+        626212860387094,
+        "qwen-image-2.1-UC-int8_convrot.safetensors",
+        "qwen3vl_8b_int8_convrot.safetensors",
+        "qwen_image_2.1_vae_bf16.safetensors",
+        "gpu",
+        "default"
+      ],
+      "widgets_values_named": {
+        "resolution": 0,
+        "prompt": "",
+        "negative_prompt": "",
+        "cfg": 1,
+        "steps": 25,
+        "switch": false,
+        "width": 1024,
+        "height": 1024,
+        "scheduler": "euler",
+        "scheduler_1": "simple",
+        "seed": 626212860387094,
+        "unet_name": "qwen-image-2.1-int8_convrot.safetensors",
+        "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+        "vae_name": "qwen_image_2.1_vae_bf16.safetensors",
+        "device": "gpu",
+        "dtype": "default"
+      }
+    },
+    {
+      "id": 524,
+      "type": "SaveImageAdvanced",
+      "pos": [
+        3198.997523797716,
+        3277.2676648248807
+      ],
+      "size": [
+        715.703125,
+        410
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "showAdvanced": true,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 808
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            810
+          ]
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "Qwen_image_2.1",
+        "png",
+        "8-bit",
+        "sRGB"
+      ],
+      "widgets_values_named": {
+        "filename_prefix": "Qwen_image_2.1",
+        "format": "png",
+        "format.bit_depth": "8-bit",
+        "format.input_color_space": "sRGB"
+      }
+    },
+    {
+      "id": 525,
+      "type": "ImageCompare",
+      "pos": [
+        3972.3412059386164,
+        3085.3307227774803
+      ],
+      "size": [
+        660,
+        760
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_a",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 809
+        },
+        {
+          "name": "image_b",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 810
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "ImageCompare"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 526,
+      "type": "MultiPromptPackageLoader",
+      "pos": [
+        1311.5133019880163,
+        3745.5231145628823
+      ],
+      "size": [
+        295.390625,
+        414
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_02",
+          "type": "IMAGE",
+          "links": [
+            819
+          ]
+        },
+        {
+          "name": "image_03",
+          "type": "IMAGE",
+          "links": [
+            822
+          ]
+        },
+        {
+          "name": "image_04",
+          "type": "IMAGE",
+          "links": [
+            823
+          ]
+        },
+        {
+          "name": "image_05",
+          "type": "IMAGE",
+          "links": [
+            821
+          ]
+        },
+        {
+          "name": "image_06",
+          "type": "IMAGE",
+          "links": [
+            820
+          ]
+        },
+        {
+          "name": "character_positive",
+          "type": "STRING",
+          "links": [
+            825
+          ]
+        },
+        {
+          "name": "character_negative",
+          "type": "STRING",
+          "links": [
+            827
+          ]
+        },
+        {
+          "name": "character_count",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MultiPromptPackageLoader"
+      },
+      "widgets_values": [
+        "C:\\charactor-spec-samples\\",
+        "charactor01",
+        "None",
+        "None",
+        "None",
+        "None"
+      ],
+      "widgets_values_named": {
+        "root_path": "C:\\charactor-spec-samples\\",
+        "package_1": "charactor01",
+        "package_2": "None",
+        "package_3": "None",
+        "package_4": "None",
+        "package_5": "None"
+      }
+    },
+    {
+      "id": 527,
+      "type": "StringFormat",
+      "pos": [
+        1674.0789585715631,
+        4410.7751156997965
+      ],
+      "size": [
+        397.703125,
+        306.453125
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "values.a",
+          "shape": 7,
+          "type": "*",
+          "link": 811
+        },
+        {
+          "name": "values.b",
+          "shape": 7,
+          "type": "*",
+          "link": 826
+        },
+        {
+          "name": "values.c",
+          "shape": 7,
+          "type": "*",
+          "link": 827
+        },
+        {
+          "name": "values.d",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            818
+          ]
+        }
+      ],
+      "title": "Negative Prompt",
+      "properties": {
+        "Node name for S&R": "StringFormat"
+      },
+      "widgets_values": [
+        "[COMMON]\n\n{a}\n\n[SCENE]\n\n{b}\n\n\n[CHARACTER]\n\n{c}\n\n"
+      ],
+      "widgets_values_named": {
+        "f_string": "[COMMON]\n\n{a}\n\n[SCENE]\n\n{b}\n\n\n[CHARACTER]\n\n{c}\n\n"
+      }
+    },
+    {
+      "id": 528,
+      "type": "StringFormat",
+      "pos": [
+        1728.2789347537628,
+        3982.679187462696
+      ],
+      "size": [
+        397.1875,
+        295.734375
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "values.a",
+          "shape": 7,
+          "type": "*",
+          "link": 814
+        },
+        {
+          "name": "values.b",
+          "shape": 7,
+          "type": "*",
+          "link": 824
+        },
+        {
+          "name": "values.c",
+          "shape": 7,
+          "type": "*",
+          "link": 825
+        },
+        {
+          "name": "values.d",
+          "shape": 7,
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            817
+          ]
+        }
+      ],
+      "title": "Positive Prompt",
+      "properties": {
+        "Node name for S&R": "StringFormat"
+      },
+      "widgets_values": [
+        "[COMMON]\n\n{a}\n\n[SCENE]\n\n{b}\n\n\n[CHARACTER]\n\n{c}\n\n"
+      ],
+      "widgets_values_named": {
+        "f_string": "[COMMON]\n\n{a}\n\n[SCENE]\n\n{b}\n\n\n[CHARACTER]\n\n{c}\n\n"
+      }
+    },
+    {
+      "id": 529,
+      "type": "PrimitiveString",
+      "pos": [
+        1319.4245746678357,
+        4582.63132665345
+      ],
+      "size": [
+        270,
+        70
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            826
+          ]
+        }
+      ],
+      "title": "SCENE-SPECIFIC NEGATIVE",
+      "properties": {
+        "Node name for S&R": "PrimitiveString"
+      },
+      "widgets_values": [
+        "Do not show the original rough figure as a separate figure beside, behind, or overlapping Character A. Do not interpret Character A and the rough figure as two characters. Avoid a stable, balanced, deliberate, elegant, or generic standing pose, relaxed arms, centered balance, weak motion, neutral expression, extreme fear, panic, or crying."
+      ],
+      "widgets_values_named": {
+        "value": "Do not show the original rough figure as a separate figure beside, behind, or overlapping Character A. Do not interpret Character A and the rough figure as two characters. Avoid a stable, balanced, deliberate, elegant, or generic standing pose, relaxed arms, centered balance, weak motion, neutral expression, extreme fear, panic, or crying."
+      }
+    },
+    {
+      "id": 530,
+      "type": "PrimitiveString",
+      "pos": [
+        1318.7669782625621,
+        4461.363504913796
+      ],
+      "size": [
+        270,
+        70
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            824
+          ]
+        }
+      ],
+      "title": "SCENE-SPECIFIC POSITIVE",
+      "properties": {
+        "Node name for S&R": "PrimitiveString"
+      },
+      "widgets_values": [
+        "Replace the single rough figure in Image 01 with Character A from Image 02. Character A must occupy the same position and follow the same pose geometry as that rough figure; the rough figure itself must not remain as a separate figure. Character A suddenly loses her balance and instinctively spreads both arms to recover. Her center of gravity is visibly displaced. Her hair and clothing react naturally to the movement while retaining their reference design. She looks suddenly surprised, with widened eyes, raised eyebrows, and a slightly open mouth. The reaction is lively and comedic rather than frightened."
+      ],
+      "widgets_values_named": {
+        "value": "Replace the single rough figure in Image 01 with Character A from Image 02. Character A must occupy the same position and follow the same pose geometry as that rough figure; the rough figure itself must not remain as a separate figure. Character A suddenly loses her balance and instinctively spreads both arms to recover. Her center of gravity is visibly displaced. Her hair and clothing react naturally to the movement while retaining their reference design. She looks suddenly surprised, with widened eyes, raised eyebrows, and a slightly open mouth. The reaction is lively and comedic rather than frightened."
+      }
+    },
+    {
+      "id": 531,
+      "type": "PrimitiveString",
+      "pos": [
+        1319.866978262562,
+        4230.363504913797
+      ],
+      "size": [
+        270,
+        70
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            814
+          ]
+        }
+      ],
+      "title": "COMMON-SPECIFIC POSITIVE",
+      "properties": {
+        "Node name for S&R": "PrimitiveString"
+      },
+      "widgets_values": [
+        "Create a polished 2D anime game illustration by replacing each rough figure in Image 01 with its assigned character. Image 01 is only the authoritative reference for pose, composition, camera angle, perspective, foreshortening, character placement, and spatial relationships. Use its geometry and composition, but do not reproduce its rough visual appearance. Image 02 and later images are authoritative character design references in order: Character A, Character B, Character C, and so on. Reproduce each character's appearance, age, proportions, face, hairstyle, clothing, colors, accessories, and distinctive features faithfully from the corresponding reference image. Apply each character design directly to the assigned rough figure while preserving its pose geometry. Preserve the perspective, depth, overlap, apparent size, and asymmetry of Image 01. Render only the finished characters with clean 2D anime line art and coloring."
+      ],
+      "widgets_values_named": {
+        "value": "Create a polished 2D anime game illustration by replacing each rough figure in Image 01 with its assigned character. Image 01 is only the authoritative reference for pose, composition, camera angle, perspective, foreshortening, character placement, and spatial relationships. Use its geometry and composition, but do not reproduce its rough visual appearance. Image 02 and later images are authoritative character design references in order: Character A, Character B, Character C, and so on. Reproduce each character's appearance, age, proportions, face, hairstyle, clothing, colors, accessories, and distinctive features faithfully from the corresponding reference image. Apply each character design directly to the assigned rough figure while preserving its pose geometry. Preserve the perspective, depth, overlap, apparent size, and asymmetry of Image 01. Render only the finished characters with clean 2D anime line art and coloring."
+      }
+    },
+    {
+      "id": 532,
+      "type": "PrimitiveString",
+      "pos": [
+        1318.7669782625621,
+        4344.763504913797
+      ],
+      "size": [
+        270,
+        70
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            811
+          ]
+        }
+      ],
+      "title": "COMMON-SPECIFIC NEGATIVE",
+      "properties": {
+        "Node name for S&R": "PrimitiveString"
+      },
+      "widgets_values": [
+        "Do not reproduce the rough visual appearance, sketch lines, construction lines, placeholder anatomy, placeholder face, placeholder clothing, or unfinished elements from Image 01. Do not leave the original rough figures as additional characters. Do not add characters beyond the assigned characters. Do not change or normalize the assigned poses, camera angle, perspective, foreshortening, depth, or placement. Do not mix, swap, merge, or duplicate character identities. Do not invent clothing, accessories, bags, books, school supplies, or decorative details absent from the character references or scene instructions. Avoid adult proportions for child characters, sexualized appearance, malformed anatomy, photorealism, 3D rendering, or unfinished output."
+      ],
+      "widgets_values_named": {
+        "value": "Do not reproduce the rough visual appearance, sketch lines, construction lines, placeholder anatomy, placeholder face, placeholder clothing, or unfinished elements from Image 01. Do not leave the original rough figures as additional characters. Do not add characters beyond the assigned characters. Do not change or normalize the assigned poses, camera angle, perspective, foreshortening, depth, or placement. Do not mix, swap, merge, or duplicate character identities. Do not invent clothing, accessories, bags, books, school supplies, or decorative details absent from the character references or scene instructions. Avoid adult proportions for child characters, sexualized appearance, malformed anatomy, photorealism, 3D rendering, or unfinished output."
+      }
+    },
+    {
+      "id": 533,
+      "type": "PreviewAny",
+      "pos": [
+        2171.9977662215615,
+        3988.2164599827956
+      ],
+      "size": [
+        404.28125,
+        288.046875
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 817
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            798
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 534,
+      "type": "PreviewAny",
+      "pos": [
+        2105.8087363497625,
+        4428.138708956696
+      ],
+      "size": [
+        404.28125,
+        288.046875
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 818
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            799
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 535,
+      "type": "PreviewImage",
+      "pos": [
+        1667.6468357156427,
+        3406.7287960079416
+      ],
+      "size": [
+        390.046875,
+        358.171875
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 819
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            803
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 536,
+      "type": "PreviewImage",
+      "pos": [
+        1970.029863416979,
+        3552.924713333866
+      ],
+      "size": [
+        390.046875,
+        358.171875
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 820
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            807
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 537,
+      "type": "PreviewImage",
+      "pos": [
+        1893.852740416979,
+        3513.9503713338654
+      ],
+      "size": [
+        390.046875,
+        358.171875
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 821
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            806
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 538,
+      "type": "PreviewImage",
+      "pos": [
+        1737.955372416979,
+        3444.8594923338655
+      ],
+      "size": [
+        390.046875,
+        358.171875
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 822
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            804
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 539,
+      "type": "PreviewImage",
+      "pos": [
+        1814.1324954169793,
+        3476.747590333865
+      ],
+      "size": [
+        390.046875,
+        358.171875
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 823
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            805
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      798,
+      533,
+      0,
+      523,
+      0,
+      "STRING"
+    ],
+    [
+      799,
+      534,
+      0,
+      523,
+      1,
+      "STRING"
+    ],
+    [
+      800,
+      522,
+      0,
+      523,
+      4,
+      "INT"
+    ],
+    [
+      801,
+      522,
+      1,
+      523,
+      5,
+      "INT"
+    ],
+    [
+      802,
+      521,
+      0,
+      523,
+      10,
+      "IMAGE"
+    ],
+    [
+      803,
+      535,
+      0,
+      523,
+      11,
+      "IMAGE"
+    ],
+    [
+      804,
+      538,
+      0,
+      523,
+      12,
+      "IMAGE"
+    ],
+    [
+      805,
+      539,
+      0,
+      523,
+      13,
+      "IMAGE"
+    ],
+    [
+      806,
+      537,
+      0,
+      523,
+      14,
+      "IMAGE"
+    ],
+    [
+      807,
+      536,
+      0,
+      523,
+      15,
+      "IMAGE"
+    ],
+    [
+      808,
+      523,
+      0,
+      524,
+      0,
+      "IMAGE"
+    ],
+    [
+      809,
+      521,
+      0,
+      525,
+      0,
+      "IMAGE"
+    ],
+    [
+      810,
+      524,
+      0,
+      525,
+      1,
+      "IMAGE"
+    ],
+    [
+      811,
+      532,
+      0,
+      527,
+      0,
+      "STRING"
+    ],
+    [
+      814,
+      531,
+      0,
+      528,
+      0,
+      "STRING"
+    ],
+    [
+      817,
+      528,
+      0,
+      533,
+      0,
+      "STRING"
+    ],
+    [
+      818,
+      527,
+      0,
+      534,
+      0,
+      "STRING"
+    ],
+    [
+      819,
+      526,
+      0,
+      535,
+      0,
+      "IMAGE"
+    ],
+    [
+      820,
+      526,
+      4,
+      536,
+      0,
+      "IMAGE"
+    ],
+    [
+      821,
+      526,
+      3,
+      537,
+      0,
+      "IMAGE"
+    ],
+    [
+      822,
+      526,
+      1,
+      538,
+      0,
+      "IMAGE"
+    ],
+    [
+      823,
+      526,
+      2,
+      539,
+      0,
+      "IMAGE"
+    ],
+    [
+      824,
+      530,
+      0,
+      528,
+      1,
+      "STRING"
+    ],
+    [
+      825,
+      526,
+      5,
+      528,
+      2,
+      "STRING"
+    ],
+    [
+      826,
+      529,
+      0,
+      527,
+      1,
+      "STRING"
+    ],
+    [
+      827,
+      526,
+      6,
+      527,
+      2,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "definitions": {
+    "subgraphs": [
+      {
+        "id": "f1e638e6-5fbc-486c-a42a-315bbdc10d8b",
+        "version": 1,
+        "state": {
+          "lastGroupId": 37,
+          "lastNodeId": 539,
+          "lastLinkId": 827,
+          "lastRerouteId": 9
+        },
+        "revision": 0,
+        "config": {},
+        "name": "Image Edit (Qwen Image 2.1)",
+        "inputNode": {
+          "id": -10,
+          "bounding": [
+            -720,
+            630,
+            143.044921875,
+            568
+          ]
+        },
+        "outputNode": {
+          "id": -20,
+          "bounding": [
+            1960,
+            640,
+            128,
+            68
+          ]
+        },
+        "inputs": [
+          {
+            "id": "1f3911c3-71b5-45b7-9a0e-4ac7285069dc",
+            "name": "resolution",
+            "type": "INT",
+            "linkIds": [
+              725
+            ],
+            "pos": [
+              -600.955078125,
+              654
+            ]
+          },
+          {
+            "id": "6a73de3b-f4cd-43a4-9076-76648c6902f0",
+            "name": "prompt",
+            "type": "STRING",
+            "linkIds": [
+              726
+            ],
+            "localized_name": "prompt",
+            "label": "positive_prompt",
+            "pos": [
+              -600.955078125,
+              674
+            ]
+          },
+          {
+            "id": "d4c1377f-7fbc-4519-b83c-9a3b9c2de104",
+            "name": "negative_prompt",
+            "type": "STRING",
+            "linkIds": [
+              727
+            ],
+            "pos": [
+              -600.955078125,
+              694
+            ]
+          },
+          {
+            "id": "420ee896-17c3-4e07-95fc-0ff309a6b836",
+            "name": "cfg",
+            "type": "FLOAT",
+            "linkIds": [
+              658
+            ],
+            "pos": [
+              -600.955078125,
+              714
+            ]
+          },
+          {
+            "id": "349c3f72-ba7a-4277-84ff-8029faa16019",
+            "name": "steps",
+            "type": "INT",
+            "linkIds": [
+              659
+            ],
+            "label": "steps",
+            "pos": [
+              -600.955078125,
+              734
+            ]
+          },
+          {
+            "id": "60df426d-f8ab-4ce2-8c82-42dc7cbf19d0",
+            "name": "switch",
+            "type": "BOOLEAN",
+            "linkIds": [
+              703
+            ],
+            "label": "custom_size",
+            "pos": [
+              -600.955078125,
+              754
+            ]
+          },
+          {
+            "id": "91c96cf8-057b-4da2-b71e-305541a3527e",
+            "name": "width",
+            "type": "INT",
+            "linkIds": [
+              660
+            ],
+            "localized_name": "width",
+            "pos": [
+              -600.955078125,
+              774
+            ]
+          },
+          {
+            "id": "661cc520-6bd0-4925-90ec-cecaa188b57d",
+            "name": "height",
+            "type": "INT",
+            "linkIds": [
+              661
+            ],
+            "localized_name": "height",
+            "pos": [
+              -600.955078125,
+              794
+            ]
+          },
+          {
+            "id": "9f0e91b8-5a4a-4f5a-a2a4-4ddc180df0fd",
+            "name": "scheduler",
+            "type": "COMBO",
+            "linkIds": [
+              662
+            ],
+            "label": "sampler",
+            "pos": [
+              -600.955078125,
+              814
+            ]
+          },
+          {
+            "id": "4710583f-3cb0-4091-87ab-dadd8a2e657c",
+            "name": "scheduler_1",
+            "type": "COMBO",
+            "linkIds": [
+              668
+            ],
+            "label": "scheduler",
+            "pos": [
+              -600.955078125,
+              834
+            ]
+          },
+          {
+            "id": "977ce57d-3764-491c-8d2d-543754cfbaf1",
+            "name": "seed",
+            "type": "INT",
+            "linkIds": [
+              667
+            ],
+            "pos": [
+              -600.955078125,
+              854
+            ]
+          },
+          {
+            "id": "143494fb-a40e-423f-be3b-ecc808b408b0",
+            "name": "unet_name",
+            "type": "COMBO",
+            "linkIds": [
+              663
+            ],
+            "pos": [
+              -600.955078125,
+              874
+            ]
+          },
+          {
+            "id": "d8528289-e121-45ed-9c31-e6370ce4ba5e",
+            "name": "clip_name",
+            "type": "COMBO",
+            "linkIds": [
+              664
+            ],
+            "pos": [
+              -600.955078125,
+              894
+            ]
+          },
+          {
+            "id": "f03d1fb0-d592-4997-b55e-e7a2549c36e5",
+            "name": "vae_name",
+            "type": "COMBO",
+            "linkIds": [
+              665
+            ],
+            "pos": [
+              -600.955078125,
+              914
+            ]
+          },
+          {
+            "id": "c2d95dbf-7f92-4c0b-a138-b9b5d1472e7f",
+            "name": "device",
+            "type": "COMBO",
+            "linkIds": [
+              729
+            ],
+            "label": "cache_device",
+            "pos": [
+              -600.955078125,
+              1134
+            ]
+          },
+          {
+            "id": "974d6751-be03-4afc-911f-a0d43f7cb906",
+            "name": "dtype",
+            "type": "COMBO",
+            "linkIds": [
+              730
+            ],
+            "label": "dtype",
+            "pos": [
+              -600.955078125,
+              1154
+            ]
+          },
+          {
+            "id": "6bbe4c8a-0ce9-4576-9468-697a165b98b4",
+            "name": "images.image_1",
+            "type": "IMAGE",
+            "linkIds": [
+              710
+            ],
+            "label": "image_1",
+            "pos": [
+              -600.955078125,
+              934
+            ]
+          },
+          {
+            "id": "5e9080e7-bbd0-4363-9e25-aaa201f9ff01",
+            "name": "images.image_2",
+            "type": "IMAGE",
+            "linkIds": [
+              711
+            ],
+            "label": "image_2",
+            "pos": [
+              -600.955078125,
+              954
+            ]
+          },
+          {
+            "id": "29bd6732-17d4-4ca7-aa9f-dc118c6c008a",
+            "name": "images.image_3",
+            "type": "IMAGE",
+            "linkIds": [
+              712
+            ],
+            "label": "image_3",
+            "pos": [
+              -600.955078125,
+              974
+            ]
+          },
+          {
+            "id": "c0899e22-8834-4c49-b0ec-5d2e1c9a4f9d",
+            "name": "images.image_4",
+            "type": "IMAGE",
+            "linkIds": [
+              713
+            ],
+            "label": "image_4",
+            "pos": [
+              -600.955078125,
+              994
+            ]
+          },
+          {
+            "id": "f4bb2fe2-583b-429d-83dc-0af6d4d3fdf8",
+            "name": "images.image_5_1",
+            "type": "IMAGE",
+            "linkIds": [
+              714
+            ],
+            "label": "image_5",
+            "pos": [
+              -600.955078125,
+              1014
+            ]
+          },
+          {
+            "id": "4dc8dcc5-da5f-4dd4-82f4-479dabed8567",
+            "name": "images.image_6",
+            "type": "IMAGE",
+            "linkIds": [
+              715
+            ],
+            "label": "image_6",
+            "pos": [
+              -600.955078125,
+              1034
+            ]
+          },
+          {
+            "id": "58ac7e94-91ff-4992-9022-fd67902782eb",
+            "name": "images.image_7",
+            "type": "IMAGE",
+            "linkIds": [
+              716
+            ],
+            "label": "image_7",
+            "pos": [
+              -600.955078125,
+              1054
+            ]
+          },
+          {
+            "id": "b736a3f9-62a7-4b77-ad2b-9ed40a482949",
+            "name": "images.image_8",
+            "type": "IMAGE",
+            "linkIds": [
+              717
+            ],
+            "label": "image_8",
+            "pos": [
+              -600.955078125,
+              1074
+            ]
+          },
+          {
+            "id": "79883453-5e79-4003-a7ef-8d9156cffcc4",
+            "name": "images.image_9",
+            "type": "IMAGE",
+            "linkIds": [
+              718
+            ],
+            "label": "image_9",
+            "pos": [
+              -600.955078125,
+              1094
+            ]
+          },
+          {
+            "id": "68c8b3fa-d3fd-4281-82ba-09030a9918dc",
+            "name": "images.image_10",
+            "type": "IMAGE",
+            "linkIds": [
+              719
+            ],
+            "label": "image_10",
+            "pos": [
+              -600.955078125,
+              1114
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "id": "f6f3effc-0961-4c17-b52c-a77c16ca6aa4",
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "linkIds": [
+              650
+            ],
+            "localized_name": "IMAGE",
+            "pos": [
+              1984,
+              664
+            ]
+          }
+        ],
+        "widgets": [],
+        "nodes": [
+          {
+            "id": 451,
+            "type": "UNETLoader",
+            "pos": [
+              -190,
+              410
+            ],
+            "size": [
+              510,
+              90
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "unet_name",
+                "name": "unet_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "unet_name"
+                },
+                "link": 663
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "モデル",
+                "name": "MODEL",
+                "type": "MODEL",
+                "links": [
+                  688
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "UNETLoader",
+              "models": [
+                {
+                  "name": "qwen_image_2.1_int8_convrot.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/diffusion_models/qwen_image_2.1_int8_convrot.safetensors",
+                  "directory": "diffusion_models"
+                }
+              ]
+            },
+            "widgets_values": [
+              "qwen_image_2.1_int8_convrot.safetensors",
+              "default"
+            ],
+            "widgets_values_named": {
+              "unet_name": "qwen_image_2.1_int8_convrot.safetensors",
+              "weight_dtype": "default"
+            }
+          },
+          {
+            "id": 453,
+            "type": "CLIPLoader",
+            "pos": [
+              -190,
+              570
+            ],
+            "size": [
+              510,
+              120
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "clip名",
+                "name": "clip_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "clip_name"
+                },
+                "link": 664
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "CLIP",
+                "name": "CLIP",
+                "type": "CLIP",
+                "links": [
+                  721
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "CLIPLoader",
+              "models": [
+                {
+                  "name": "qwen3vl_8b_int8_convrot.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors",
+                  "directory": "text_encoders"
+                }
+              ]
+            },
+            "widgets_values": [
+              "qwen3vl_8b_int8_convrot.safetensors",
+              "qwen_image",
+              "default"
+            ],
+            "widgets_values_named": {
+              "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+              "type": "qwen_image",
+              "device": "default"
+            }
+          },
+          {
+            "id": 454,
+            "type": "VAELoader",
+            "pos": [
+              -190,
+              770
+            ],
+            "size": [
+              510,
+              70
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "vae_name",
+                "name": "vae_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "vae_name"
+                },
+                "link": 665
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "VAE",
+                "name": "VAE",
+                "type": "VAE",
+                "links": [
+                  649,
+                  720
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VAELoader",
+              "models": [
+                {
+                  "name": "qwen_image_2.1_vae_bf16.safetensors",
+                  "url": "https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors",
+                  "directory": "vae"
+                }
+              ]
+            },
+            "widgets_values": [
+              "qwen_image_2.1_vae_bf16.safetensors"
+            ],
+            "widgets_values_named": {
+              "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+            }
+          },
+          {
+            "id": 456,
+            "type": "EmptyLatentImage",
+            "pos": [
+              -70,
+              1010
+            ],
+            "size": [
+              300,
+              120
+            ],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "幅",
+                "name": "width",
+                "type": "INT",
+                "widget": {
+                  "name": "width"
+                },
+                "link": 660
+              },
+              {
+                "localized_name": "高さ",
+                "name": "height",
+                "type": "INT",
+                "widget": {
+                  "name": "height"
+                },
+                "link": 661
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "潜在",
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  684
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "EmptyLatentImage"
+            },
+            "widgets_values": [
+              1024,
+              1024,
+              1
+            ],
+            "widgets_values_named": {
+              "width": 1024,
+              "height": 1024,
+              "batch_size": 1
+            }
+          },
+          {
+            "id": 457,
+            "type": "VAEDecode",
+            "pos": [
+              1620,
+              660
+            ],
+            "size": [
+              230,
+              60
+            ],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "サンプル",
+                "name": "samples",
+                "type": "LATENT",
+                "link": 651
+              },
+              {
+                "localized_name": "vae",
+                "name": "vae",
+                "type": "VAE",
+                "link": 649
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "画像",
+                "name": "IMAGE",
+                "type": "IMAGE",
+                "links": [
+                  650
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "VAEDecode"
+            }
+          },
+          {
+            "id": 458,
+            "type": "KSampler",
+            "pos": [
+              1180,
+              640
+            ],
+            "size": [
+              270,
+              270
+            ],
+            "flags": {},
+            "order": 5,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "モデル",
+                "name": "model",
+                "type": "MODEL",
+                "link": 689
+              },
+              {
+                "localized_name": "ポジティブ",
+                "name": "positive",
+                "type": "CONDITIONING",
+                "link": 722
+              },
+              {
+                "localized_name": "ネガティブ",
+                "name": "negative",
+                "type": "CONDITIONING",
+                "link": 723
+              },
+              {
+                "localized_name": "潜在画像",
+                "name": "latent_image",
+                "type": "LATENT",
+                "link": 682
+              },
+              {
+                "localized_name": "シード",
+                "name": "seed",
+                "type": "INT",
+                "widget": {
+                  "name": "seed"
+                },
+                "link": 667
+              },
+              {
+                "localized_name": "ステップ",
+                "name": "steps",
+                "type": "INT",
+                "widget": {
+                  "name": "steps"
+                },
+                "link": 659
+              },
+              {
+                "localized_name": "cfg",
+                "name": "cfg",
+                "type": "FLOAT",
+                "widget": {
+                  "name": "cfg"
+                },
+                "link": 658
+              },
+              {
+                "localized_name": "サンプラー名",
+                "name": "sampler_name",
+                "type": "COMBO",
+                "widget": {
+                  "name": "sampler_name"
+                },
+                "link": 662
+              },
+              {
+                "localized_name": "スケジューラ",
+                "name": "scheduler",
+                "type": "COMBO",
+                "widget": {
+                  "name": "scheduler"
+                },
+                "link": 668
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "潜在",
+                "name": "LATENT",
+                "type": "LATENT",
+                "links": [
+                  651
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "KSampler"
+            },
+            "widgets_values": [
+              0,
+              "randomize",
+              25,
+              1,
+              "euler",
+              "simple",
+              1
+            ],
+            "widgets_values_named": {
+              "seed": 0,
+              "control_after_generate": "randomize",
+              "steps": 25,
+              "cfg": 1,
+              "sampler_name": "euler",
+              "scheduler": "simple",
+              "denoise": 1
+            }
+          },
+          {
+            "id": 468,
+            "type": "ComfySwitchNode",
+            "pos": [
+              570,
+              1040
+            ],
+            "size": [
+              270,
+              80
+            ],
+            "flags": {},
+            "order": 6,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "偽の場合",
+                "name": "on_false",
+                "shape": 7,
+                "type": "LATENT",
+                "link": 724
+              },
+              {
+                "localized_name": "真の場合",
+                "name": "on_true",
+                "shape": 7,
+                "type": "LATENT",
+                "link": 684
+              },
+              {
+                "localized_name": "スイッチ",
+                "name": "switch",
+                "type": "BOOLEAN",
+                "widget": {
+                  "name": "switch"
+                },
+                "link": 703
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "出力",
+                "name": "output",
+                "type": "LATENT",
+                "links": [
+                  682
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "ComfySwitchNode"
+            },
+            "widgets_values": [
+              false
+            ],
+            "widgets_values_named": {
+              "switch": false
+            }
+          },
+          {
+            "id": 469,
+            "type": "QwenImage21Cache",
+            "pos": [
+              1180,
+              460
+            ],
+            "size": [
+              270,
+              90
+            ],
+            "flags": {},
+            "order": 7,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "model",
+                "name": "model",
+                "type": "MODEL",
+                "link": 688
+              },
+              {
+                "localized_name": "device",
+                "name": "device",
+                "type": "COMBO",
+                "widget": {
+                  "name": "device"
+                },
+                "link": 729
+              },
+              {
+                "localized_name": "dtype",
+                "name": "dtype",
+                "type": "COMBO",
+                "widget": {
+                  "name": "dtype"
+                },
+                "link": 730
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "モデル",
+                "name": "MODEL",
+                "type": "MODEL",
+                "links": [
+                  689
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "QwenImage21Cache"
+            },
+            "widgets_values": [
+              "auto",
+              "default"
+            ],
+            "widgets_values_named": {
+              "device": "auto",
+              "dtype": "default"
+            }
+          },
+          {
+            "id": 474,
+            "type": "TextEncodeQwenImage21",
+            "pos": [
+              500,
+              430
+            ],
+            "size": [
+              460,
+              520
+            ],
+            "flags": {},
+            "order": 8,
+            "mode": 0,
+            "inputs": [
+              {
+                "localized_name": "clip",
+                "name": "clip",
+                "type": "CLIP",
+                "link": 721
+              },
+              {
+                "localized_name": "image_1",
+                "name": "images.image_1",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 710
+              },
+              {
+                "localized_name": "vae",
+                "name": "vae",
+                "shape": 7,
+                "type": "VAE",
+                "link": 720
+              },
+              {
+                "localized_name": "prompt",
+                "name": "prompt",
+                "type": "STRING",
+                "widget": {
+                  "name": "prompt"
+                },
+                "link": 726
+              },
+              {
+                "localized_name": "negative_prompt",
+                "name": "negative_prompt",
+                "type": "STRING",
+                "widget": {
+                  "name": "negative_prompt"
+                },
+                "link": 727
+              },
+              {
+                "localized_name": "resolution",
+                "name": "resolution",
+                "type": "INT",
+                "widget": {
+                  "name": "resolution"
+                },
+                "link": 725
+              },
+              {
+                "localized_name": "image_12",
+                "name": "images.image_12",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": null
+              },
+              {
+                "localized_name": "image_5",
+                "name": "images.image_5",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 714
+              },
+              {
+                "localized_name": "image_6",
+                "name": "images.image_6",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 715
+              },
+              {
+                "localized_name": "image_7",
+                "name": "images.image_7",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 716
+              },
+              {
+                "localized_name": "image_8",
+                "name": "images.image_8",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 717
+              },
+              {
+                "localized_name": "image_9",
+                "name": "images.image_9",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 718
+              },
+              {
+                "localized_name": "image_10",
+                "name": "images.image_10",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 719
+              },
+              {
+                "localized_name": "image_11",
+                "name": "images.image_11",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": null
+              },
+              {
+                "localized_name": "image_2",
+                "name": "images.image_2",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 711
+              },
+              {
+                "localized_name": "image_3",
+                "name": "images.image_3",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 712
+              },
+              {
+                "localized_name": "image_4",
+                "name": "images.image_4",
+                "shape": 7,
+                "type": "IMAGE",
+                "link": 713
+              }
+            ],
+            "outputs": [
+              {
+                "localized_name": "positive",
+                "name": "positive",
+                "type": "CONDITIONING",
+                "links": [
+                  722
+                ]
+              },
+              {
+                "localized_name": "negative",
+                "name": "negative",
+                "type": "CONDITIONING",
+                "links": [
+                  723
+                ]
+              },
+              {
+                "localized_name": "latent",
+                "name": "latent",
+                "type": "LATENT",
+                "links": [
+                  724
+                ]
+              }
+            ],
+            "properties": {
+              "Node name for S&R": "TextEncodeQwenImage21"
+            },
+            "widgets_values": [
+              "",
+              "",
+              1024
+            ],
+            "widgets_values_named": {
+              "prompt": "",
+              "negative_prompt": "",
+              "resolution": 1024
+            }
+          }
+        ],
+        "groups": [
+          {
+            "id": 34,
+            "title": "Models",
+            "bounding": [
+              -200,
+              300,
+              530,
+              590
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          },
+          {
+            "id": 35,
+            "title": "Image Size",
+            "bounding": [
+              -200,
+              920,
+              530,
+              250
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          },
+          {
+            "id": 36,
+            "title": "Conditioning",
+            "bounding": [
+              360,
+              300,
+              700,
+              860
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          },
+          {
+            "id": 37,
+            "title": "Sampling",
+            "bounding": [
+              1090,
+              300,
+              470,
+              860
+            ],
+            "color": "#3f789e",
+            "flags": {}
+          }
+        ],
+        "links": [
+          {
+            "id": 649,
+            "origin_id": 454,
+            "origin_slot": 0,
+            "target_id": 457,
+            "target_slot": 1,
+            "type": "VAE"
+          },
+          {
+            "id": 650,
+            "origin_id": 457,
+            "origin_slot": 0,
+            "target_id": -20,
+            "target_slot": 0,
+            "type": "IMAGE"
+          },
+          {
+            "id": 651,
+            "origin_id": 458,
+            "origin_slot": 0,
+            "target_id": 457,
+            "target_slot": 0,
+            "type": "LATENT"
+          },
+          {
+            "id": 682,
+            "origin_id": 468,
+            "origin_slot": 0,
+            "target_id": 458,
+            "target_slot": 3,
+            "type": "LATENT"
+          },
+          {
+            "id": 684,
+            "origin_id": 456,
+            "origin_slot": 0,
+            "target_id": 468,
+            "target_slot": 1,
+            "type": "LATENT"
+          },
+          {
+            "id": 688,
+            "origin_id": 451,
+            "origin_slot": 0,
+            "target_id": 469,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 689,
+            "origin_id": 469,
+            "origin_slot": 0,
+            "target_id": 458,
+            "target_slot": 0,
+            "type": "MODEL"
+          },
+          {
+            "id": 722,
+            "origin_id": 474,
+            "origin_slot": 0,
+            "target_id": 458,
+            "target_slot": 1,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 723,
+            "origin_id": 474,
+            "origin_slot": 1,
+            "target_id": 458,
+            "target_slot": 2,
+            "type": "CONDITIONING"
+          },
+          {
+            "id": 724,
+            "origin_id": 474,
+            "origin_slot": 2,
+            "target_id": 468,
+            "target_slot": 0,
+            "type": "LATENT"
+          },
+          {
+            "id": 658,
+            "origin_id": -10,
+            "origin_slot": 3,
+            "target_id": 458,
+            "target_slot": 6,
+            "type": "FLOAT"
+          },
+          {
+            "id": 659,
+            "origin_id": -10,
+            "origin_slot": 4,
+            "target_id": 458,
+            "target_slot": 5,
+            "type": "INT"
+          },
+          {
+            "id": 703,
+            "origin_id": -10,
+            "origin_slot": 5,
+            "target_id": 468,
+            "target_slot": 2,
+            "type": "BOOLEAN"
+          },
+          {
+            "id": 660,
+            "origin_id": -10,
+            "origin_slot": 6,
+            "target_id": 456,
+            "target_slot": 0,
+            "type": "INT"
+          },
+          {
+            "id": 661,
+            "origin_id": -10,
+            "origin_slot": 7,
+            "target_id": 456,
+            "target_slot": 1,
+            "type": "INT"
+          },
+          {
+            "id": 662,
+            "origin_id": -10,
+            "origin_slot": 8,
+            "target_id": 458,
+            "target_slot": 7,
+            "type": "COMBO"
+          },
+          {
+            "id": 668,
+            "origin_id": -10,
+            "origin_slot": 9,
+            "target_id": 458,
+            "target_slot": 8,
+            "type": "COMBO"
+          },
+          {
+            "id": 667,
+            "origin_id": -10,
+            "origin_slot": 10,
+            "target_id": 458,
+            "target_slot": 4,
+            "type": "INT"
+          },
+          {
+            "id": 663,
+            "origin_id": -10,
+            "origin_slot": 11,
+            "target_id": 451,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 664,
+            "origin_id": -10,
+            "origin_slot": 12,
+            "target_id": 453,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 665,
+            "origin_id": -10,
+            "origin_slot": 13,
+            "target_id": 454,
+            "target_slot": 0,
+            "type": "COMBO"
+          },
+          {
+            "id": 721,
+            "origin_id": 453,
+            "origin_slot": 0,
+            "target_id": 474,
+            "target_slot": 0,
+            "type": "CLIP"
+          },
+          {
+            "id": 710,
+            "origin_id": -10,
+            "origin_slot": 16,
+            "target_id": 474,
+            "target_slot": 1,
+            "type": "IMAGE"
+          },
+          {
+            "id": 720,
+            "origin_id": 454,
+            "origin_slot": 0,
+            "target_id": 474,
+            "target_slot": 2,
+            "type": "VAE"
+          },
+          {
+            "id": 726,
+            "origin_id": -10,
+            "origin_slot": 1,
+            "target_id": 474,
+            "target_slot": 3,
+            "type": "STRING"
+          },
+          {
+            "id": 727,
+            "origin_id": -10,
+            "origin_slot": 2,
+            "target_id": 474,
+            "target_slot": 4,
+            "type": "STRING"
+          },
+          {
+            "id": 725,
+            "origin_id": -10,
+            "origin_slot": 0,
+            "target_id": 474,
+            "target_slot": 5,
+            "type": "INT"
+          },
+          {
+            "id": 719,
+            "origin_id": -10,
+            "origin_slot": 25,
+            "target_id": 474,
+            "target_slot": 12,
+            "type": "IMAGE"
+          },
+          {
+            "id": 711,
+            "origin_id": -10,
+            "origin_slot": 17,
+            "target_id": 474,
+            "target_slot": 14,
+            "type": "IMAGE"
+          },
+          {
+            "id": 712,
+            "origin_id": -10,
+            "origin_slot": 18,
+            "target_id": 474,
+            "target_slot": 15,
+            "type": "IMAGE"
+          },
+          {
+            "id": 713,
+            "origin_id": -10,
+            "origin_slot": 19,
+            "target_id": 474,
+            "target_slot": 16,
+            "type": "IMAGE"
+          },
+          {
+            "id": 714,
+            "origin_id": -10,
+            "origin_slot": 20,
+            "target_id": 474,
+            "target_slot": 7,
+            "type": "IMAGE"
+          },
+          {
+            "id": 715,
+            "origin_id": -10,
+            "origin_slot": 21,
+            "target_id": 474,
+            "target_slot": 8,
+            "type": "IMAGE"
+          },
+          {
+            "id": 716,
+            "origin_id": -10,
+            "origin_slot": 22,
+            "target_id": 474,
+            "target_slot": 9,
+            "type": "IMAGE"
+          },
+          {
+            "id": 717,
+            "origin_id": -10,
+            "origin_slot": 23,
+            "target_id": 474,
+            "target_slot": 10,
+            "type": "IMAGE"
+          },
+          {
+            "id": 718,
+            "origin_id": -10,
+            "origin_slot": 24,
+            "target_id": 474,
+            "target_slot": 11,
+            "type": "IMAGE"
+          },
+          {
+            "id": 729,
+            "origin_id": -10,
+            "origin_slot": 14,
+            "target_id": 469,
+            "target_slot": 1,
+            "type": "COMBO"
+          },
+          {
+            "id": 730,
+            "origin_id": -10,
+            "origin_slot": 15,
+            "target_id": 469,
+            "target_slot": 2,
+            "type": "COMBO"
+          }
+        ],
+        "extra": {}
+      }
+    ]
+  },
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.28966437973668807,
+      "offset": [
+        -204.977414703477,
+        -2716.6393875620956
+      ]
+    },
+    "frontendVersion": "1.52.7"
+  },
+  "version": 0.4
+}
