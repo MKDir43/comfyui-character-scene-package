@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .multi_reference_loader import load_image, empty_image
 from . import scene_templates
+from .template_sections import split_marker
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHARACTER_ROOT = ROOT / "examples" / "character-references"
@@ -42,6 +43,18 @@ def inside(root, relative):
     if not path.is_relative_to(root.resolve()):
         raise ValueError(f"Path escapes reference directory: {relative}")
     return path
+
+
+def input_path(selection, root, label):
+    """Explicit root means relative input; no root means an absolute input."""
+    path = Path(selection.strip()).expanduser()
+    if root.strip():
+        if path.is_absolute() or path.drive:
+            raise ValueError(f"{label}: use a relative path when root is specified")
+        return inside(Path(root.strip()).expanduser().resolve(), selection.strip())
+    if not path.is_absolute():
+        raise ValueError(f"{label}: use an absolute path when root is empty")
+    return path.resolve()
 
 
 def find_scene(root, selection):
@@ -83,23 +96,27 @@ def selected_templates(slots, templates=scene_templates):
         for i, s in enumerate(slots, 2)
     ) + "\n" + common[mapping_end:]
     # The source has one scene/character block for each of the original A/B/C slots.
-    scene_prefix = scene[:scene.index("\nA (")]
-    scene_tail = scene[scene.index("\nAll characters in this group:"):]
+    scene_prefix, remaining = split_marker(scene, "SCENE_SLOT_A")
+    scene_parts = {}
+    scene_parts["a"], remaining = split_marker(remaining, "SCENE_SLOT_B")
+    scene_parts["b"], remaining = split_marker(remaining, "SCENE_SLOT_C")
+    scene_parts["c"], scene_tail = split_marker(remaining, "GROUP_RULES_START")
+    character_prefix, remaining = split_marker(character, "CHARACTER_SLOT_A")
+    character_parts = {}
+    character_parts["a"], remaining = split_marker(remaining, "CHARACTER_SLOT_B")
+    character_parts["b"], remaining = split_marker(remaining, "CHARACTER_SLOT_C")
+    character_parts["c"], character_tail = split_marker(remaining, "CHARACTER_EXTRA_START")
     old_hair = "A: {{a_hair_silhouette}} / B: {{b_hair_silhouette}} / C: {{c_hair_silhouette}}"
     scene_tail = scene_tail.replace(old_hair, " / ".join(f"{s.upper()}: {{{{{s}_hair_silhouette}}}}" for s in slots))
     scene_blocks = []
     character_blocks = []
     for i, slot in enumerate(slots, 2):
         index = "abc".index(slot)
-        start = scene.index(f"\n{slot.upper()} (")
-        end = scene.index(f"\n{'ABC'[index + 1]} (") if index < 2 else scene.index("\nAll characters in this group:")
-        scene_blocks.append(scene[start:end])
-        start = character.index(f"\nCHARACTER {slot.upper()} —")
-        end = character.index(f"\nCHARACTER {'ABC'[index + 1]} —") if index < 2 else character.index("\n{{extra_character_positive}}")
-        block = character[start:end].replace(f"IMAGE {index + 2:02d} ONLY", f"IMAGE {i:02d} ONLY")
+        scene_blocks.append(scene_parts[slot])
+        block = character_parts[slot].replace(f"IMAGE {index + 2:02d} ONLY", f"IMAGE {i:02d} ONLY")
         character_blocks.append(block)
     positive = common + "\n[SCENE]\n" + scene_prefix + "".join(scene_blocks) + scene_tail
-    positive += "\n[CHARACTER]\n" + "".join(character_blocks) + "\n{{extra_character_positive}}"
+    positive += "\n[CHARACTER]\n" + character_prefix + "".join(character_blocks) + character_tail
     negative = templates.NEGATIVE_TEMPLATE[:templates.NEGATIVE_TEMPLATE.index("\nA — IMAGE 02:")]
     negative += "\n" + "\n".join(f"{s.upper()} — IMAGE {i:02d}: {{{{{s}_failure_modes}}}}" for i, s in enumerate(slots, 2))
     negative += "\n{{extra_character_negative}}\n"
@@ -112,16 +129,16 @@ class ScenePromptTemplate:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "scene": ("STRING", {"default": "reference-layout.json", "multiline": False,
-                "tooltip": "JSON filename searched recursively under json_root, or an explicit relative path."}),
+            "scene": ("STRING", {"default": "", "multiline": False,
+                "tooltip": "Scene JSON absolute path, or relative path when json_root is set."}),
             **{f"character_{slot}": ("STRING", {"default": "None", "multiline": False,
-                 "tooltip": "Folder name under character_root containing character.json. Empty or None disables this slot."}) for slot in "abc"},
+                 "tooltip": "Character folder absolute path, or relative path when character_root is set. Empty or None disables this slot."}) for slot in "abc"},
             "scene_overrides": ("STRING", {"default": "{}", "multiline": True, "dynamicPrompts": False}),
         }, "optional": {
             "character_root": ("STRING", {"default": "", "multiline": False,
-                "tooltip": f"Character reference directory on the ComfyUI server. Empty uses {DEFAULT_CHARACTER_ROOT}"}),
+                "tooltip": "Optional base directory for relative character folder paths. Empty requires absolute paths."}),
             "json_root": ("STRING", {"default": "", "multiline": False,
-                "tooltip": f"Scene JSON directory, including subdirectories. Empty uses {SCENE_ROOT}"}),
+                "tooltip": "Optional base directory for relative scene JSON paths. Empty requires an absolute scene path."}),
         }}
 
     RETURN_TYPES = ("STRING", "STRING", "STRING", "IMAGE", "IMAGE", "IMAGE", "INT", "STRING")
@@ -134,11 +151,10 @@ class ScenePromptTemplate:
         return float("nan")
 
     def build(self, scene, character_a="None", character_b="None", character_c="None", scene_overrides="{}", character_root="", json_root=""):
-        reference_root = Path(character_root.strip()).expanduser().resolve() if character_root.strip() else DEFAULT_CHARACTER_ROOT.resolve()
-        if not reference_root.is_dir():
-            raise ValueError(f"Character reference directory does not exist: {reference_root}")
-        scene_root = Path(json_root.strip()).expanduser().resolve() if json_root.strip() else SCENE_ROOT
-        scene_data = read_json(find_scene(scene_root, scene))
+        scene_path = input_path(scene, json_root, "scene")
+        if json_root.strip():
+            scene_path = find_scene(Path(json_root.strip()).expanduser(), scene)
+        scene_data = read_json(scene_path)
         if set(scene_data) - {"schema_version", "name", "values", "slots"}:
             raise ValueError("Scene JSON: use schema_version, name, values and slots only")
         try:
@@ -167,7 +183,9 @@ class ScenePromptTemplate:
                 scene_slots.setdefault(slot, {}).update(text_fields(fields, SLOT_FIELDS, f"slots.{slot}"))
         images, mapping, warnings = [], [], []
         for number, (slot, selection) in enumerate(selections.items(), 2):
-            folder = inside(reference_root, selection)
+            folder = input_path(selection, character_root, f"character_{slot}")
+            if not folder.is_dir():
+                raise ValueError(f"Character directory does not exist: {folder}")
             data = read_json(folder / "character.json")
             if set(data) - {"schema_version", "image", "fields"}:
                 raise ValueError(f"{selection}: use schema_version, image and fields only")

@@ -86,23 +86,24 @@ CharacterReferences/
 
 **[シーンJSONの書き方・全項目一覧](presets/scenes/README.md)** に、コピーして使える例と各設定の意味をまとめています。
 
-シーンは`scene`欄へファイル名または相対パスを入力します。追加・編集したJSONは次回実行時に探索・読み込みます。
+パスはすべてテキスト入力です。rootが空欄ならフルパス、rootを指定した場合はそこからの相対パスを入力します。JS拡張は不要です。
 
 ### 3. Build Scene Promptsを設定する
 
 | 入力 | 設定するもの |
 |---|---|
-| `scene` | 使用するシーンJSONのファイル名、または`json_root`からの相対パス |
-| `json_root` | シーンJSONの親ディレクトリ。サブフォルダーも探索。空欄なら`presets/scenes/` |
-| `character_root` | キャラクターフォルダーの親ディレクトリ。空欄ならパッケージ内の`examples/character-references/` |
-| `character_a`／`character_b`／`character_c` | 親ディレクトリ配下のキャラクターフォルダー名。使わない枠は空欄または`None` |
+| `scene` | シーンJSONのフルパス。`json_root`指定時は相対パス |
+| `json_root` | 任意のシーンJSON親ディレクトリ。空欄なら`scene`にフルパスを指定 |
+| `character_root` | 任意のキャラクター親ディレクトリ。空欄なら各キャラクター欄にフルパスを指定 |
+| `character_a`／`character_b`／`character_c` | `character.json`のあるフォルダーのパス。root指定時は相対パス。使わない枠は空欄または`None` |
 | `scene_overrides` | 今回だけ変更するシーン設定。通常は`{}` |
 
 パッケージ内のサンプルを試す場合：
 
 ```text
 scene           = reference-layout.json
-character_root  = （空欄）
+json_root       = ＜インストール先の絶対パス＞/presets/scenes
+character_root  = ＜インストール先の絶対パス＞/examples/character-references
 character_a     = charactor01
 character_b     = None
 character_c     = None

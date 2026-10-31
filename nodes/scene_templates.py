@@ -2,6 +2,8 @@
 
 import re
 
+from .template_sections import strip_markers
+
 
 # Each key is both a ComfyUI STRING widget and a {{placeholder}} name.
 FIELD_DEFAULTS = {
@@ -106,6 +108,7 @@ Camera: {{pov_type}} ({{pov_alias}}), {{angle_and_direction}}; {{framing_descrip
 for slot in "abc":
     # Substitute slot names only; leave field placeholders for execution time.
     POSITIVE_TEMPLATE += """
+{{SCENE_BLOCK}}
 SLOT ({{s_position}}): {{s_hair_spec}}; {{s_eyes_and_gaze}}.
 Facial marks (left/right relative to the character's own body): {{s_facial_marks}}
 Pose: {{s_pose}}.
@@ -113,9 +116,10 @@ Expression: {{s_expression}}.
 Clothing/accessories per COMMON override.
 Unique details and interactions: {{s_unique_details}}
 Nearby props: {{s_nearby_props}}
-""".replace("SLOT", slot.upper()).replace("{{s_", "{{" + slot + "_")
+""".replace("SLOT", slot.upper()).replace("{{SCENE_BLOCK}}", "{{SCENE_SLOT_" + slot.upper() + "}}").replace("{{s_", "{{" + slot + "_")
 
 POSITIVE_TEMPLATE += """
+{{GROUP_RULES_START}}
 All characters in this group: {{shared_body_type_spec}}
 All gaze {{gaze_rule}}.
 Each hair silhouette (A: {{a_hair_silhouette}} / B: {{b_hair_silhouette}} / C: {{c_hair_silhouette}}) must read clearly.
@@ -125,6 +129,7 @@ Each hair silhouette (A: {{a_hair_silhouette}} / B: {{b_hair_silhouette}} / C: {
 """
 
 for number, slot in enumerate("abc", 2):
+    POSITIVE_TEMPLATE += "{{CHARACTER_SLOT_" + slot.upper() + "}}\n"
     POSITIVE_TEMPLATE += f"\nCHARACTER {slot.upper()} — DESIGN SOURCE: IMAGE {number:02d} ONLY\n"
     POSITIVE_TEMPLATE += """{{s_name}}, {{s_age_and_context}}.
 Preserve face, apparent age and coloring from the reference's main full-body views. Use expression panels for expressions only; ignore vignettes with other people.
@@ -133,7 +138,7 @@ Accessory construction and placement: {{s_accessory_specs}}
 Omitted reference features and reasons: {{s_omitted_features}}
 Use the scene's clothing override. Omit unspecified reference details. Do not borrow traits from other references.
 """.replace("{{s_", "{{" + slot + "_")
-POSITIVE_TEMPLATE += "\n{{extra_character_positive}}"
+POSITIVE_TEMPLATE += "{{CHARACTER_EXTRA_START}}\n\n{{extra_character_positive}}"
 
 NEGATIVE_TEMPLATE = """[COMMON]
 Rough sketch lines, construction lines, hatching, mannequin surfaces, placeholder faces or clothing, unfinished output.
@@ -170,6 +175,7 @@ PLACEHOLDER = re.compile(r"\{\{\s*([a-z][a-z0-9_]*)\s*\}\}")
 
 def render_template(template, values):
     """Omit lines with empty fields. Insert user text literally, in one pass."""
+    template = strip_markers(template)
     unknown = set(PLACEHOLDER.findall(template)) - values.keys()
     if unknown:
         raise ValueError("Unknown template variables: " + ", ".join(sorted(unknown)))

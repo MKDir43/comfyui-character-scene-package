@@ -25,7 +25,7 @@ Build Scene専用のJSONを使い、詳細なCOMMON／SCENE／CHARACTERテンプ
 4. `positive_prompt`／`negative_prompt`をテキストエンコード側へ、`image_02`以降を参照画像側へ接続します。Image 01のラフ画像は従来の画像ノードで別途読み込みます。
 5. 別のキャラクターJSONを登録したら、A／B／Cの選択を変えるだけで画像と特徴文が切り替わります。
 
-既存ノードの`root_path`に指定しているデータと同じ場所を使えます。ノードの`character_root`に参照フォルダーの絶対パスを入力してください。空欄の場合はインストール先の`examples/character-references/`を使います。`character_a`／`character_b`／`character_c`には、その配下のフォルダー名を入力します。TXTだけでは読み込めず、`character.json`が必要です。
+`character_a`／`character_b`／`character_c`には`character.json`のあるフォルダーのフルパスを入力します。`character_root`を指定する場合は、その配下の相対パスを入力します。TXTだけでは読み込めず、`character.json`が必要です。
 
 ```text
 comfyui-character-scene-package/
@@ -39,7 +39,7 @@ comfyui-character-scene-package/
     └── reference-layout.json  # Build Scene専用
 ```
 
-シーンJSONは`json_root`配下を実行時に再帰的に探索します。`scene`にファイル名または相対パスを入力してください。キャラクターはフォルダー名を直接入力するため、追加時の再起動は不要です。選択済みJSONの内容や画像を編集した場合、次回実行で読み直します。
+パスはテキスト入力です。`json_root`が空欄なら`scene`にJSONのフルパスを入力します。rootを指定した場合は相対パスを入力します。キャラクターも同様です。未使用枠は空欄または`None`にします。ファイルの編集内容は次回実行で読み直します。
 
 ## キャラクターJSON
 
@@ -71,7 +71,7 @@ comfyui-character-scene-package/
 
 全項目の一覧と詳しい記載例は [シーンJSONの書き方](../presets/scenes/README.md) を参照してください。
 
-`json_root`で指定したディレクトリ以下のJSONを使います。空欄なら`presets/scenes/`を使います。`values`には画風、背景、照明、衣装ルールなど、`slots`には位置A／B／Cの配置・ポーズ・視線を保存します。
+`json_root`で指定したディレクトリ以下のJSONを使います。空欄なら`scene`にフルパスを指定します。`values`には画風、背景、照明、衣装ルールなど、`slots`には位置A／B／Cの配置・ポーズ・視線を保存します。
 
 ```json
 {
@@ -145,4 +145,19 @@ character_a    = character01
 
 この例では`D:\ScenePresets\outdoor\courtyard.json`を読み込みます。`scene`に`courtyard.json`だけを入力した場合は、サブフォルダーも探索して一致するファイルを読み込みます。同名が複数ある場合はエラーに候補の相対パスを表示します。ファイルが見つからない場合は見つかったJSONを最大20件表示します。
 
-`character_root`と`json_root`は別々に設定でき、空欄ならそれぞれ既定の場所を使います。入力名は従来どおり`character_root`です。`scene`はドロップダウンからテキスト入力へ変更しています。コード更新後はComfyUIを再起動し、古い入力欄が残る場合はノードを追加し直してください。
+`character_root`と`json_root`は独立しています。それぞれ、rootが空欄ならフルパス、指定されていれば相対パスを使います。既定フォルダーへの自動補完はありません。
+
+更新後はComfyUIを再起動してください。JavaScript拡張は使いません。以前rootを空欄にして相対パスを使っていた場合は、rootを設定するかフルパスへ変更してください。
+
+### テンプレート本文と区切り
+
+両方の`scene_templates*.py`は、以下の専用マーカーで人物ごとの本文を分割します。マーカーは単独行に置き、名前・順序を変更しないでください。生成プロンプトには出力されません。
+
+| マーカー | 直後に置く内容 |
+|---|---|
+| `{{SCENE_SLOT_A}}`／`{{SCENE_SLOT_B}}`／`{{SCENE_SLOT_C}}` | 各人物のシーン説明 |
+| `{{GROUP_RULES_START}}` | 人物全体の共通条件 |
+| `{{CHARACTER_SLOT_A}}`／`{{CHARACTER_SLOT_B}}`／`{{CHARACTER_SLOT_C}}` | 各人物のデザイン説明 |
+| `{{CHARACTER_EXTRA_START}}` | キャラクター説明の追加文 |
+
+例えば`All characters in this group:`の文言は自由に変更できます。人物枠の見出しも分割処理には使いません。ただし、`[SCENE]`／`[CHARACTER]`などのセクション構成と参照画像番号の表記は引き続き維持してください。マーカーが不足・重複している場合は、エラーに該当するマーカー名を表示します。

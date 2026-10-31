@@ -8,11 +8,11 @@ Build Scene Promptsで使う、背景・画風・衣装・配置・ポーズな�
 
 1. 同じフォルダーの [reference-layout.json](reference-layout.json) をコピーし、例えば`courtyard.json`として保存します。
 2. 必要な項目だけ編集します。文字コードはUTF-8です。
-3. Build Sceneの`json_root`にJSONを置いた親ディレクトリを入力し、`scene`にファイル名または相対パスを入力します。
-4. `character_root`にキャラクター参照の親フォルダーを指定し、`character_a`／`character_b`／`character_c`には、その配下にある人物フォルダー名を入力します。`character_root`が空欄なら従来の`examples/character-references/`を使います。使わない枠は`None`にします。
+3. `json_root`を指定する場合は`scene`に相対パスを、空欄の場合はJSONのフルパスを入力します。
+4. `character_root`を指定する場合は各キャラクター欄に相対パスを、空欄の場合は`character.json`があるフォルダーのフルパスを入力します。使わない枠は`None`にします。
 5. ラフ画像をImage 01として生成側へ接続し、選択した人数分の参照画像出力とPositive／Negativeを接続します。
 
-配置先はノードの`json_root`で指定します。空欄なら`comfyui-character-scene-package/presets/scenes/`を使います。サブフォルダーも再帰的に探索します。同じファイル名が複数ある場合は`outdoor/courtyard.json`のように相対パスで指定してください。追加・変更は次回実行時に読み直します。
+`json_root`が空欄なら`scene`にフルパスを指定します。root指定時はサブフォルダーも再帰的に探索します。同じファイル名が複数ある場合は`outdoor/courtyard.json`のように相対パスで指定してください。追加・変更は次回実行時に読み直します。
 
 ## 基本構造
 
