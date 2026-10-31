@@ -1,0 +1,4 @@
+# Use the dependencies already installed in ComfyUI's Python environment.
+numpy
+Pillow
+torch

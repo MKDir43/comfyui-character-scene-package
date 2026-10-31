@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "image": "image.png",
+  "fields": {
+    "name": "Character 01",
+    "hair_spec": "Long black hair reaching approximately mid-back",
+    "eye_color": "Preserve the exact eye color from the assigned reference",
+    "facial_marks": "A small beauty mark directly below her LEFT eye, relative to her own body",
+    "hair_silhouette": "Long straight black hair reaching mid-back",
+    "age_and_context": "Preserve the apparent age from the assigned reference",
+    "fixed_features": "Preserve the exact character identity, apparent age, facial features, hairstyle and uniform construction shown in the reference image. The skirt has exactly three colored frill tiers.",
+    "accessory_specs": "Do not invent additional character accessories",
+    "failure_modes": "different character, short hair, different hair color, missing beauty mark, beauty mark under right eye, mirrored beauty mark, different uniform, uniform redesign, incorrect skirt construction, two-tier skirt, four-tier skirt, adult proportions, invented accessories, randoseru, backpack, school bag"
+  }
+}

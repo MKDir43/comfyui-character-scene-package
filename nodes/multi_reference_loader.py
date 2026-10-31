@@ -128,6 +128,7 @@ class MultiPromptPackageLoader:
         "STRING",
 
         "INT",
+        "STRING",
     )
 
     RETURN_NAMES = (
@@ -141,11 +142,12 @@ class MultiPromptPackageLoader:
         "character_negative",
 
         "character_count",
+        "character_mapping",
     )
 
     FUNCTION = "load_packages"
 
-    CATEGORY = "loaders"
+    CATEGORY = "Character Scene Tools/References"
 
     # -----------------------------------------------------
     # Main
@@ -205,6 +207,7 @@ class MultiPromptPackageLoader:
 
         positive_sections = []
         negative_sections = []
+        mapping_sections = []
 
         # -------------------------------------------------
         # Load enabled packages.
@@ -273,14 +276,20 @@ class MultiPromptPackageLoader:
 
             positive_section = (
                 f"CHARACTER {character_letter} "
-                f"— IMAGE {image_number:02d}\n\n"
-                f"{positive}"
+                f"— DESIGN SOURCE: IMAGE {image_number:02d} ONLY\n\n"
+                f"{positive}\n\n"
+                "IDENTITY LOCK: Use only the assigned reference for this "
+                "character's design; do not borrow traits from other references."
             )
 
             negative_section = (
                 f"CHARACTER {character_letter} "
                 f"— IMAGE {image_number:02d}\n\n"
                 f"{negative}"
+            )
+
+            mapping_sections.append(
+                f"Character {character_letter} = Image {image_number:02d}"
             )
 
             positive_sections.append(
@@ -332,20 +341,10 @@ class MultiPromptPackageLoader:
             character_negative,
 
             character_count,
+            "\n".join(mapping_sections),
         )
 
 
 # ---------------------------------------------------------
 # Registration
 # ---------------------------------------------------------
-
-NODE_CLASS_MAPPINGS = {
-    "MultiPromptPackageLoader":
-        MultiPromptPackageLoader,
-}
-
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "MultiPromptPackageLoader":
-        "Multi Prompt Package Loader",
-}

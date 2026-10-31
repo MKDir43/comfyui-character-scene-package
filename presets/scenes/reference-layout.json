@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "name": "Reference layout",
+  "values": {
+    "environment_description": "Preserve the environment drawn in Image 01",
+    "lighting": "Consistent lighting across the scene",
+    "background_treatment": "Slightly softer background under the same lighting",
+    "clothing_rule": "Each character wears the complete, opaque outfit and shoes shown in their own assigned reference. Preserve the reference outfit construction and colors.",
+    "allowed_clothing": "the complete outfit and shoes in each assigned character reference"
+  },
+  "slots": {
+    "a": {
+      "position": "front-right, nearest camera",
+      "pose": "Preserve the exact pose of the front-right figure in Image 01",
+      "gaze": "gaze as drawn for the front-right figure in Image 01",
+      "expression": "Preserve the expression drawn in Image 01"
+    },
+    "b": {
+      "position": "center, mid-distance",
+      "pose": "Preserve the exact pose of the center figure in Image 01",
+      "gaze": "gaze as drawn for the center figure in Image 01",
+      "expression": "Preserve the expression drawn in Image 01"
+    },
+    "c": {
+      "position": "back-left, furthest",
+      "pose": "Preserve the exact pose of the back-left figure in Image 01",
+      "gaze": "gaze as drawn for the back-left figure in Image 01",
+      "expression": "Preserve the expression drawn in Image 01"
+    }
+  }
+}

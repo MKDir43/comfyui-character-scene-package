@@ -1,0 +1,13 @@
+[project]
+name = "character-scene-tools"
+version = "0.1.0"
+description = "ComfyUI nodes for loading character references and building scene prompts."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy", "Pillow", "torch"]
+
+[project.urls]
+Repository = "https://github.com/MKDir43/comfyui-image-prompt-package"
+
+[tool.comfy]
+DisplayName = "Character Scene Tools"

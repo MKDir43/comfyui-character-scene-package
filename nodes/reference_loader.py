@@ -63,7 +63,7 @@ class ImagePromptPackageLoader:
 
     FUNCTION = "load_package"
 
-    CATEGORY = "loaders"
+    CATEGORY = "Character Scene Tools/References"
 
     def load_package(
         self,
@@ -172,15 +172,3 @@ class ImagePromptPackageLoader:
         return path.read_text(
             encoding="utf-8"
         ).strip()
-
-
-NODE_CLASS_MAPPINGS = {
-    "ImagePromptPackageLoader":
-        ImagePromptPackageLoader,
-}
-
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "ImagePromptPackageLoader":
-        "Image / Prompt Package Loader",
-}
