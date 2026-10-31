@@ -63,7 +63,7 @@ class ImagePromptPackageLoader:
 
     FUNCTION = "load_package"
 
-    CATEGORY = "Character Scene Tools/References"
+    CATEGORY = "ComfyUI Character Scene Package/References"
 
     def load_package(
         self,

@@ -198,7 +198,7 @@ class DetailedTemplateRenderer:
     RETURN_TYPES = ("STRING", "STRING", "STRING")
     RETURN_NAMES = ("positive_prompt", "negative_prompt", "diagnostics")
     FUNCTION = "build"
-    CATEGORY = "Character Scene Tools/Prompts"
+    CATEGORY = "ComfyUI Character Scene Package/Prompts"
 
     def build(self, positive_template=POSITIVE_TEMPLATE, negative_template=NEGATIVE_TEMPLATE, **kwargs):
         values = {**FIELD_DEFAULTS, **kwargs}

@@ -34,9 +34,10 @@ class RegistrationTests(unittest.TestCase):
             registry = module.NODE_CLASS_MAPPINGS
             self.assertEqual(set(registry), {
                 "ImagePromptPackageLoader", "MultiPromptPackageLoader", "ScenePromptTemplate",
+                "ScenePromptTemplateNSFW",
             })
             self.assertEqual(set(registry), set(module.NODE_DISPLAY_NAME_MAPPINGS))
-            self.assertEqual(len(set(module.NODE_DISPLAY_NAME_MAPPINGS.values())), 3)
+            self.assertEqual(len(set(module.NODE_DISPLAY_NAME_MAPPINGS.values())), 4)
             single = registry["ImagePromptPackageLoader"]
             self.assertEqual(list(single.INPUT_TYPES()["required"]), ["root_path", "package_name"])
             self.assertEqual(single.RETURN_NAMES, ("image", "positive_prompt", "negative_prompt"))
@@ -54,8 +55,13 @@ class RegistrationTests(unittest.TestCase):
                 "positive_prompt", "negative_prompt", "diagnostics",
                 "image_02", "image_03", "image_04", "character_count", "character_mapping",
             ))
+            nsfw = registry["ScenePromptTemplateNSFW"]
+            self.assertEqual(builder.INPUT_TYPES(), nsfw.INPUT_TYPES())
+            self.assertEqual(builder.RETURN_NAMES, nsfw.RETURN_NAMES)
+            self.assertEqual(builder.RETURN_TYPES, nsfw.RETURN_TYPES)
+            self.assertIsNot(builder.TEMPLATE_MODULE, nsfw.TEMPLATE_MODULE)
             for cls in registry.values():
-                self.assertTrue(cls.CATEGORY.startswith("Character Scene Tools/"))
+                self.assertTrue(cls.CATEGORY.startswith("ComfyUI Character Scene Package/"))
                 self.assertTrue(callable(getattr(cls(), cls.FUNCTION)))
 
 

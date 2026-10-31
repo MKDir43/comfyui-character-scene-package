@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from .multi_reference_loader import load_image, empty_image
-from .scene_templates import FIELD_DEFAULTS, POSITIVE_TEMPLATE, NEGATIVE_TEMPLATE, render_template
+from . import scene_templates
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CHARACTER_ROOT = ROOT / "examples" / "character-references"
@@ -14,7 +14,6 @@ CHARACTER_FIELDS = {
     "age_and_context", "fixed_features", "accessory_specs", "failure_modes",
 }
 SLOT_FIELDS = {"position", "gaze", "pose", "expression", "unique_details", "nearby_props", "omitted_features"}
-GLOBAL_FIELDS = {key for key in FIELD_DEFAULTS if not key.startswith(("a_", "b_", "c_"))}
 
 
 def read_json(path):
@@ -45,9 +44,9 @@ def inside(root, relative):
     return path
 
 
-def selected_templates(slots):
+def selected_templates(slots, templates=scene_templates):
     """Reuse the detailed template blocks verbatim; only vary occupied slots."""
-    common, rest = POSITIVE_TEMPLATE.split("\n[SCENE]\n", 1)
+    common, rest = templates.POSITIVE_TEMPLATE.split("\n[SCENE]\n", 1)
     scene, character = rest.split("\n[CHARACTER]\n", 1)
     common = common.replace("A ×1, B ×1, C ×1", ", ".join(f"{s.upper()} ×1" for s in slots))
     mapping_start = common.index("- A =")
@@ -74,13 +73,15 @@ def selected_templates(slots):
         character_blocks.append(block)
     positive = common + "\n[SCENE]\n" + scene_prefix + "".join(scene_blocks) + scene_tail
     positive += "\n[CHARACTER]\n" + "".join(character_blocks) + "\n{{extra_character_positive}}"
-    negative = NEGATIVE_TEMPLATE[:NEGATIVE_TEMPLATE.index("\nA — IMAGE 02:")]
+    negative = templates.NEGATIVE_TEMPLATE[:templates.NEGATIVE_TEMPLATE.index("\nA — IMAGE 02:")]
     negative += "\n" + "\n".join(f"{s.upper()} — IMAGE {i:02d}: {{{{{s}_failure_modes}}}}" for i, s in enumerate(slots, 2))
     negative += "\n{{extra_character_negative}}\n"
     return positive, negative
 
 
 class ScenePromptTemplate:
+    TEMPLATE_MODULE = scene_templates
+
     @classmethod
     def INPUT_TYPES(cls):
         scenes = sorted(p.name for p in SCENE_ROOT.glob("*.json")) or ["None"]
@@ -97,7 +98,7 @@ class ScenePromptTemplate:
     RETURN_TYPES = ("STRING", "STRING", "STRING", "IMAGE", "IMAGE", "IMAGE", "INT", "STRING")
     RETURN_NAMES = ("positive_prompt", "negative_prompt", "diagnostics", "image_02", "image_03", "image_04", "character_count", "character_mapping")
     FUNCTION = "build"
-    CATEGORY = "Character Scene Tools/Prompts"
+    CATEGORY = "ComfyUI Character Scene Package/Prompts"
 
     @classmethod
     def IS_CHANGED(cls, **kwargs):
@@ -116,9 +117,11 @@ class ScenePromptTemplate:
             raise ValueError(f"scene_overrides: invalid JSON: {error}") from error
         if not isinstance(override, dict) or set(override) - {"values", "slots"}:
             raise ValueError("scene_overrides accepts only values and slots objects")
-        values = dict(FIELD_DEFAULTS)
+        templates = self.TEMPLATE_MODULE
+        values = dict(templates.FIELD_DEFAULTS)
+        global_fields = {key for key in values if not key.startswith(("a_", "b_", "c_"))}
         for source in (scene_data, override):
-            values.update(text_fields(source.get("values", {}), GLOBAL_FIELDS, "scene.values"))
+            values.update(text_fields(source.get("values", {}), global_fields, "scene.values"))
         selections = {s: name.strip() for s, name in zip("abc", (character_a, character_b, character_c))
                       if name.strip() and name.strip().lower() != "none"}
         if not selections:
@@ -167,9 +170,9 @@ class ScenePromptTemplate:
             raise ValueError("n_total must be an integer at least equal to the selected character count")
         if int(values["n_total"]) > len(selections) and not values["secondary_character_group_spec"].strip():
             warnings.append("Describe additional people in secondary_character_group_spec.")
-        positive_template, negative_template = selected_templates(selections)
-        positive = render_template(positive_template, values)
-        negative = render_template(negative_template, values)
+        positive_template, negative_template = selected_templates(selections, templates)
+        positive = templates.render_template(positive_template, values)
+        negative = templates.render_template(negative_template, values)
         if "{{" in positive + negative or "}}" in positive + negative:
             warnings.append("Unresolved placeholder-like text remains in the supplied values.")
         while len(images) < 3:

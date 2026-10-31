@@ -7,6 +7,8 @@ from unittest.mock import patch
 from PIL import Image
 
 from nodes import scene_prompt_builder as builder
+from nodes.scene_prompt_builder_nsfw import ScenePromptTemplateNSFW
+from nodes import scene_templates_nsfw
 from nodes.scene_templates import FIELD_DEFAULTS, POSITIVE_TEMPLATE, NEGATIVE_TEMPLATE, render_template
 
 
@@ -102,6 +104,41 @@ class ScenePresetTests(unittest.TestCase):
         data["fields"]["hair_spec"] = "changed hairstyle"
         self.write(path, data)
         self.assertIn("changed hairstyle", builder.ScenePromptTemplate().build("test.json", character_a="red")[0])
+
+    def test_nsfw_initial_output_matches_original(self):
+        for selections in ({"character_a": "red"}, {"character_a": "red", "character_c": "blue"},
+                           {"character_a": "red", "character_b": "blue", "character_c": "green"}):
+            original = builder.ScenePromptTemplate().build("test.json", **selections)
+            nsfw = ScenePromptTemplateNSFW().build("test.json", **selections)
+            self.assertEqual(original[:3], nsfw[:3])
+            self.assertEqual(original[6:], nsfw[6:])
+            for index in (3, 4, 5):
+                self.assertTrue(original[index].equal(nsfw[index]))
+
+    def test_nsfw_uses_its_own_defaults_templates_and_renderer(self):
+        baseline = builder.ScenePromptTemplate().build("test.json", character_a="red")
+        positive = scene_templates_nsfw.POSITIVE_TEMPLATE.replace(
+            "[COMMON]", "[COMMON]\nNSFW positive: {{custom_instruction}}", 1)
+        negative = scene_templates_nsfw.NEGATIVE_TEMPLATE.replace(
+            "[COMMON]", "[COMMON]\nNSFW negative", 1)
+        with patch.dict(scene_templates_nsfw.FIELD_DEFAULTS, {
+            "medium_and_finish": "Clean vector illustration", "custom_instruction": "Default instruction",
+        }), patch.object(scene_templates_nsfw, "POSITIVE_TEMPLATE", positive), \
+                patch.object(scene_templates_nsfw, "NEGATIVE_TEMPLATE", negative), \
+                patch.object(scene_templates_nsfw, "render_template", wraps=scene_templates_nsfw.render_template) as renderer:
+            result = ScenePromptTemplateNSFW().build(
+                "test.json", character_a="red",
+                scene_overrides='{"values":{"custom_instruction":"Only this variant"}}',
+            )
+            self.assertIn("Clean vector illustration", result[0])
+            self.assertIn("NSFW positive: Only this variant", result[0])
+            self.assertIn("NSFW negative", result[1])
+            self.assertEqual(renderer.call_count, 2)
+            unchanged = builder.ScenePromptTemplate().build("test.json", character_a="red")
+            self.assertEqual(baseline[:3], unchanged[:3])
+            with self.assertRaisesRegex(ValueError, "unknown fields"):
+                builder.ScenePromptTemplate().build(
+                    "test.json", character_a="red", scene_overrides='{"values":{"custom_instruction":"unsupported"}}')
 
     def test_custom_root_and_empty_slots(self):
         other = self.root / "custom references"

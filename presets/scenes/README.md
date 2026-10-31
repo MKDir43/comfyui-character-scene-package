@@ -12,7 +12,7 @@ Build Scene Promptsで使う、背景・画風・衣装・配置・ポーズな�
 4. `character_root`にキャラクター参照の親フォルダーを指定し、`character_a`／`character_b`／`character_c`には、その配下にある人物フォルダー名を入力します。`character_root`が空欄なら従来の`examples/character-references/`を使います。使わない枠は`None`にします。
 5. ラフ画像をImage 01として生成側へ接続し、選択した人数分の参照画像出力とPositive／Negativeを接続します。
 
-配置先は`character-scene-tools/presets/scenes/`直下です。サブフォルダー内のJSONは一覧に出ません。選択済みファイルの内容を編集した場合は、次回実行時に読み直します。
+配置先は`comfyui-character-scene-package/presets/scenes/`直下です。サブフォルダー内のJSONは一覧に出ません。選択済みファイルの内容を編集した場合は、次回実行時に読み直します。
 
 ## 基本構造
 

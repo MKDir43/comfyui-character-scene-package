@@ -1,5 +1,20 @@
 # Build Scene Prompts
 
+## テンプレートが異なる2つのノード
+
+| 表示名 | ノードID | 使用するテンプレート |
+|---|---|---|
+| Build Scene Prompts | `ScenePromptTemplate` | `nodes/scene_templates.py` |
+| Build Scene Prompts (NSFW) | `ScenePromptTemplateNSFW` | `nodes/scene_templates_nsfw.py` |
+
+入力・出力名、順序、型は同じです。シーンJSON、キャラクターJSON、`character_root`も共通の形式で使用できます。ComfyUIのノード検索で使いたい方を追加してください。既存のBuild Sceneは引き続き元のテンプレートを使います。
+
+NSFWのテンプレートは、追加時点の元テンプレートと同じ内容で独立したファイルとして用意しています。NSFW側の`FIELD_DEFAULTS`、`POSITIVE_TEMPLATE`、`NEGATIVE_TEMPLATE`、`render_template`を変更しても、元ノードには反映されません。変更後はComfyUI本体を再起動してください。PythonファイルはJSONと異なり実行のたびに再読み込みされません。
+
+`FIELD_DEFAULTS`はシーンJSONや`scene_overrides`より優先順位が低いため、JSON側で指定済みの項目はJSONの値になります。新しい共通変数をNSFW側の`FIELD_DEFAULTS`に追加した場合、そのノードでのみ`values`から指定できます。キャラクター項目・スロット項目の形式は共通です。
+
+現在の人数別展開はテンプレート内の見出し・区切りを使用します。固定文を編集する際も、`[SCENE]`／`[CHARACTER]`、位置対応行、`A (`／`B (`／`C (`、`CHARACTER A —`などの人物ブロック見出し、`Each position uses only`／`All characters in this group:`の区切りは維持してください。テンプレート全体の構造を変える場合は、`scene_prompt_builder.py`の`selected_templates`も対応が必要です。
+
 Build Scene専用のJSONを使い、詳細なCOMMON／SCENE／CHARACTERテンプレートへキャラクターとシーンの設定を展開します。既存の2つの参照ローダーは従来どおりTXTを読み込みます。
 
 ## 使い方
@@ -13,7 +28,7 @@ Build Scene専用のJSONを使い、詳細なCOMMON／SCENE／CHARACTERテンプ
 既存ノードの`root_path`に指定しているデータと同じ場所を使えます。ノードの`character_root`に参照フォルダーの絶対パスを入力してください。空欄の場合はインストール先の`examples/character-references/`を使います。`character_a`／`character_b`／`character_c`には、その配下のフォルダー名を入力します。TXTだけでは読み込めず、`character.json`が必要です。
 
 ```text
-character-scene-tools/
+comfyui-character-scene-package/
 ├── examples/character-references/
 │   └── charactor01/
 │       ├── image.png

@@ -147,7 +147,7 @@ class MultiPromptPackageLoader:
 
     FUNCTION = "load_packages"
 
-    CATEGORY = "Character Scene Tools/References"
+    CATEGORY = "ComfyUI Character Scene Package/References"
 
     # -----------------------------------------------------
     # Main

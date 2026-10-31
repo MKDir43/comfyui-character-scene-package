@@ -1,4 +1,4 @@
-# Character Scene Tools
+# ComfyUI Character Scene Package
 
 ![ComfyUIワークフローのスクリーンショット](docs/images/workflow.png)
 
@@ -19,6 +19,8 @@
 
 JSON形式そのものが画質を向上させるわけではありません。JSON版の違いは、設定を整理し、より詳細に調整したプロンプトへ展開する仕組みにあります。生成結果はモデル・参照画像・シーン設定にも依存します。
 
+別の固定文や既定値を使いたい場合は、**Build Scene Prompts (NSFW)**を使用できます。元ノードと同じ入出力で、独立した`nodes/scene_templates_nsfw.py`を読み込みます。初期内容は元テンプレートと同じです。[テンプレートの使い分け](docs/scene-prompt-builder.md)を参照してください。
+
 ### ワークフローを開く
 
 - **[JSON版ワークフロー](examples/workflows/character-replacement-from-json.json)** — Build Scene Promptsを使用
@@ -33,22 +35,24 @@ JSON形式そのものが画質を向上させるわけではありません。J
 ```text
 ComfyUI/
 └── custom_nodes/
-    └── character-scene-tools/
+    └── comfyui-character-scene-package/
         ├── __init__.py
         ├── nodes/
         ├── presets/
         └── ...
 ```
 
-`__init__.py`が`custom_nodes/character-scene-tools/`の直下にあることを確認してください。
+`__init__.py`が`custom_nodes/comfyui-character-scene-package/`の直下にあることを確認してください。
 
 Gitを使う場合は、実際のComfyUIの場所に合わせて実行します。
 
 ```shell
-git clone https://github.com/MKDir43/comfyui-image-prompt-package.git ComfyUI/custom_nodes/character-scene-tools
+git clone https://github.com/MKDir43/comfyui-character-scene-package.git ComfyUI/custom_nodes/comfyui-character-scene-package
 ```
 
 配置後、ComfyUIを再起動して画面を再読み込みします。リポジトリのフォルダー名が`comfyui-image-prompt-package`のままでも読み込めます。
+
+リポジトリ名・推奨配置フォルダー名・パッケージIDは`comfyui-character-scene-package`で統一しています。旧名称は`comfyui-image-prompt-package`／`character-scene-tools`です。既存のフォルダー名を変更しなくても動作しますが、新旧両方のフォルダーを`custom_nodes`へ同時に配置しないでください。保存済みワークフローのノードIDは変更していません。
 
 依存ライブラリは`numpy`、`Pillow`、`torch`です。不足している場合は、ComfyUIが使用するPython環境で次を実行してください。
 
@@ -164,7 +168,7 @@ TXT版はキャラクター枠を詰めて割り当てるため、シーンの�
 
 ## 開発・検証
 
-ノードの保存用識別子は`ImagePromptPackageLoader`、`MultiPromptPackageLoader`、`ScenePromptTemplate`です。ComfyUIのメニューでは`Character Scene Tools/References`と`Character Scene Tools/Prompts`に表示されます。
+ノードの保存用識別子は`ImagePromptPackageLoader`、`MultiPromptPackageLoader`、`ScenePromptTemplate`、`ScenePromptTemplateNSFW`です。ComfyUIのメニューでは`ComfyUI Character Scene Package/References`と`ComfyUI Character Scene Package/Prompts`に表示されます。
 
 リポジトリのルートから実行します。
 
