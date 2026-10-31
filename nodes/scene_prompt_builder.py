@@ -14,7 +14,7 @@ CHARACTER_FIELDS = {
     "name", "hair_spec", "eye_color", "facial_marks", "hair_silhouette",
     "age_and_context", "fixed_features", "accessory_specs", "failure_modes",
 }
-SLOT_FIELDS = {"position", "gaze", "pose", "expression", "unique_details", "nearby_props", "omitted_features"}
+SLOT_FIELDS = CHARACTER_FIELDS | {"position", "gaze", "eyes_and_gaze", "pose", "expression", "unique_details", "nearby_props", "omitted_features"}
 
 
 def read_json(path):
@@ -190,20 +190,21 @@ class ScenePromptTemplate:
             if set(data) - {"schema_version", "image", "fields"}:
                 raise ValueError(f"{selection}: use schema_version, image and fields only")
             fields = text_fields(data.get("fields", {}), CHARACTER_FIELDS, f"{selection}.fields")
+            slot_values = scene_slots.get(slot, {})
+            fields = {**fields, **{key: value for key, value in slot_values.items() if key in CHARACTER_FIELDS}}
             for required in ("name", "hair_spec", "eye_color", "fixed_features"):
                 if not fields.get(required, "").strip():
                     raise ValueError(f"{selection}: missing fields.{required}")
             for key, value in fields.items():
                 if key != "eye_color":
                     values[f"{slot}_{key}"] = value
-            slot_values = scene_slots.get(slot, {})
             for key, value in slot_values.items():
-                if key != "gaze":
+                if key not in {"gaze", "eye_color"}:
                     values[f"{slot}_{key}"] = value
             if not values[f"{slot}_position"].strip():
                 raise ValueError(f"slots.{slot}.position must not be empty")
             gaze = slot_values.get("gaze", "gaze as drawn in Image 01")
-            values[f"{slot}_eyes_and_gaze"] = fields["eye_color"] + "; " + gaze
+            values[f"{slot}_eyes_and_gaze"] = slot_values.get("eyes_and_gaze", fields["eye_color"] + "; " + gaze)
             image_name = data.get("image")
             if not isinstance(image_name, str) or not image_name.strip():
                 raise ValueError(f"{selection}: image must be a relative filename")

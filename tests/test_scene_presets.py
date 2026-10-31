@@ -58,10 +58,45 @@ class ScenePresetTests(unittest.TestCase):
     def write(self, path, value):
         path.write_text(json.dumps(value), encoding="utf-8")
 
+    def test_scene_character_overrides_and_precedence(self):
+        self.write(self.scenes / "test.json", {
+            "schema_version": 1, "values": {}, "slots": {"a": {
+                "name": "Scene name", "hair_spec": "silver hair", "eye_color": "green eyes",
+                "gaze": "looking forward", "accessory_specs": "small blue pin",
+                "fixed_features": "silver hair and green eyes", "failure_modes": "wrong pin color",
+            }},
+        })
+        for cls in (builder.ScenePromptTemplate, ScenePromptTemplateNSFW):
+            result = self.build(cls(), "test.json", character_a="red")
+            self.assertIn("silver hair", result[0])
+            self.assertIn("green eyes; looking forward", result[0])
+            self.assertIn("small blue pin", result[0])
+            self.assertIn("wrong pin color", result[1])
+            self.assertIn("Scene name", result[7])
+            self.assertEqual(result[3][0, 0, 0].tolist(), [1, 0, 0])
+            override = self.build(cls(), "test.json", character_a="red", scene_overrides=json.dumps({
+                "slots": {"a": {"name": "Final name", "accessory_specs": "", "eyes_and_gaze": "blue eyes looking left"}},
+            }))
+            self.assertIn("Final name", override[7])
+            self.assertIn("blue eyes looking left", override[0])
+            self.assertNotIn("small blue pin", override[0])
+            self.assertNotIn("green eyes; looking forward", override[0])
+        self.assertEqual(builder.read_json(self.characters / "red" / "character.json")["fields"]["name"], "red")
+
     def test_three_slot_template_keeps_original_text(self):
         positive, negative = builder.selected_templates("abc")
         self.assertEqual(render_template(positive, FIELD_DEFAULTS), render_template(POSITIVE_TEMPLATE, FIELD_DEFAULTS))
         self.assertEqual(render_template(negative, FIELD_DEFAULTS), render_template(NEGATIVE_TEMPLATE, FIELD_DEFAULTS))
+
+    def test_hair_silhouette_tail_supported_by_both_variants(self):
+        for cls in (builder.ScenePromptTemplate, ScenePromptTemplateNSFW):
+            for tail in ("", "along the diagonal"):
+                self.write(self.scenes / "test.json", {
+                    "schema_version": 1, "values": {"hair_silhouette_tail": tail}, "slots": {},
+                })
+                result = self.build(cls(), "test.json", character_a="red")
+                self.assertIn("must read clearly" + (" " + tail if tail else "") + ".", result[0])
+                self.assertNotIn("{{", result[0])
 
     def test_character_swap_preserves_scene_and_updates_image_and_text(self):
         red = self.build(builder.ScenePromptTemplate(), "test.json", character_a="red")
@@ -97,7 +132,7 @@ class ScenePresetTests(unittest.TestCase):
         self.assertIn("Warm light\nSoft shadows", result[0])
         self.assertIn("Pose: Sitting", result[0])
         with self.assertRaises(ValueError):
-            self.build(builder.ScenePromptTemplate(), "test.json", character_a="red", scene_overrides='{"slots":{"a":{"name":"wrong"}}}')
+            self.build(builder.ScenePromptTemplate(), "test.json", character_a="red", scene_overrides='{"slots":{"a":{"unknown_field":"wrong"}}}')
 
     def test_invalid_selections_and_schema(self):
         node = builder.ScenePromptTemplate()

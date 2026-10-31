@@ -67,7 +67,9 @@ Build Scene Promptsで使う、背景・画風・衣装・配置・ポーズな�
 | 今回の衣装ルール、持ち物とのやりとり | 固有アクセサリーの構造、特徴を保つための指示 |
 | 今回だけ省略する特徴とその理由 | キャラクター固有の失敗例 |
 
-目の色と視線は、キャラクター側の`eye_color`とシーン側の`gaze`を組み合わせます。シーンに`a_name`や`hair_spec`などの人物設定を書くことはできません。
+目の色と視線は`eye_color`と`gaze`を組み合わせます。`slots.a/b/c`にはキャラクターJSONの`fields`と同じキー（`name`、`hair_spec`、`eye_color`、`facial_marks`、`hair_silhouette`、`age_and_context`、`fixed_features`、`accessory_specs`、`failure_modes`）を指定して上書きできます。`a_name`ではなく`slots.a.name`と記載してください。`eyes_and_gaze`を指定すると目の色と視線の結合文より優先されます。
+
+人物設定の優先順位は「キャラクターJSON → シーンJSON → scene_overrides」です。省略項目は引き継ぎ、空文字列は明示的な削除になります（必須項目を除く）。画像と元のキャラクターJSONは変更しません。髪色などを変える場合は、`fixed_features`や`failure_modes`内の記述も矛盾しないように指定してください。
 
 キャラクターJSONの仕様は [Build Sceneの説明](../../docs/scene-prompt-builder.md) を参照してください。
 

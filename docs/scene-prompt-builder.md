@@ -93,7 +93,8 @@ comfyui-character-scene-package/
 ```
 
 - `values`は[テンプレート定義](../nodes/scene_templates.py)の`FIELD_DEFAULTS`にある共通変数を指定します。省略した値は既定値を使います。
-- `slots.a/b/c`は`position`、`gaze`、`pose`、`expression`、`unique_details`、`nearby_props`、`omitted_features`を指定できます。髪や名前などキャラクターの識別特徴は上書きしません。
+- `slots.a/b/c`は`position`、`gaze`、`pose`、`expression`、`unique_details`、`nearby_props`、`omitted_features`に加え、キャラクターJSONの`fields`にある名前・髪・目・特徴・装飾・禁止事項も上書きできます。人物設定の優先順位は「キャラクターJSON → シーンJSON → scene_overrides」です。省略した項目は引き継ぎ、空文字列は明示的な削除として扱います。ただし名前・髪・目の色・固定特徴の必須項目は空にできません。画像と元ファイルは変更しません。
+- `eyes_and_gaze`を指定した場合は、`eye_color`と`gaze`を結合した文より優先します。上書き後の名前は`character_mapping`にも反映します。関連する`fixed_features`や`failure_modes`に矛盾する古い特徴がある場合は、それらも明示的に上書きしてください。
 - 空文字の項目を含むテンプレート行は省略します。任意の装飾・小道具の指定は空にできます。
 - 既定では全体人数は選択したキャラクター数です。追加人物がいるシーンでは`n_total`、`category_breakdown`、`secondary_character_group_spec`を設定してください。`n_total`も文字列（例：`"4"`）です。
 - A／B／Cは場所の識別子です。Bを`None`にしてもCの場所は変わりません。画像番号だけは選択順にImage 02から連続します。1〜3人の参照キャラクターに対応します。

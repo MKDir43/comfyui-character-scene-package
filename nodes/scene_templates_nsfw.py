@@ -184,9 +184,12 @@ def render_template(template, values):
     lines = []
     for line in template.splitlines():
         keys = PLACEHOLDER.findall(line)
-        if keys and any(not values[key].strip() for key in keys):
+        if keys and any(not values[key].strip() for key in keys if key != "hair_silhouette_tail"):
             continue
-        lines.append(PLACEHOLDER.sub(lambda match: values[match.group(1)].strip(), line))
+        def substitute(match):
+            value = values[match.group(1)].strip()
+            return " " + value if match.group(1) == "hair_silhouette_tail" and value else value
+        lines.append(PLACEHOLDER.sub(substitute, line))
     text = re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
     return re.sub(r" +([.,;:])", r"\1", text)
 

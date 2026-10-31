@@ -34,6 +34,7 @@ FIELD_DEFAULTS = {
     "foreground_intrusion": "",
     "shared_body_type_spec": "Preserve each character's age and natural proportions from the assigned reference.",
     "gaze_rule": "in the directions drawn in Image 01",
+    "hair_silhouette_tail": "",
     "whose_arm": "the corresponding visible character's arm",
     "shared_rule_violations": "",
     "age_proportion_violations": "Age changes, distorted body proportions",
@@ -122,7 +123,7 @@ POSITIVE_TEMPLATE += """
 {{GROUP_RULES_START}}
 All characters in this group: {{shared_body_type_spec}}
 All gaze {{gaze_rule}}.
-Each hair silhouette (A: {{a_hair_silhouette}} / B: {{b_hair_silhouette}} / C: {{c_hair_silhouette}}) must read clearly.
+Each hair silhouette (A: {{a_hair_silhouette}} / B: {{b_hair_silhouette}} / C: {{c_hair_silhouette}}) must read clearly{{hair_silhouette_tail}}.
 {{extra_scene_positive}}
 
 [CHARACTER]
@@ -182,9 +183,12 @@ def render_template(template, values):
     lines = []
     for line in template.splitlines():
         keys = PLACEHOLDER.findall(line)
-        if keys and any(not values[key].strip() for key in keys):
+        if keys and any(not values[key].strip() for key in keys if key != "hair_silhouette_tail"):
             continue
-        lines.append(PLACEHOLDER.sub(lambda match: values[match.group(1)].strip(), line))
+        def substitute(match):
+            value = values[match.group(1)].strip()
+            return " " + value if match.group(1) == "hair_silhouette_tail" and value else value
+        lines.append(PLACEHOLDER.sub(substitute, line))
     return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip()
 
 
