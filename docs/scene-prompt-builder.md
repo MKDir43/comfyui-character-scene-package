@@ -21,7 +21,7 @@ Build Scene専用のJSONを使い、詳細なCOMMON／SCENE／CHARACTERテンプ
 
 1. [パッケージ全体をインストール](../README.md#インストール)します。
 2. **Build Scene Prompts**を追加します。旧版の大量の変数欄があるノードは、削除して新しく追加してください。今回このノードの入力構成を変更しています。
-3. `scene`で`reference-layout.json`、`character_a`に`charactor01`を入力します。使わないB／Cは`None`にします。
+3. `scene`に`reference-layout.json`、`character_a`に`charactor01`を入力します。使わないB／Cは`None`にします。
 4. `positive_prompt`／`negative_prompt`をテキストエンコード側へ、`image_02`以降を参照画像側へ接続します。Image 01のラフ画像は従来の画像ノードで別途読み込みます。
 5. 別のキャラクターJSONを登録したら、A／B／Cの選択を変えるだけで画像と特徴文が切り替わります。
 
@@ -39,7 +39,7 @@ comfyui-character-scene-package/
     └── reference-layout.json  # Build Scene専用
 ```
 
-追加したシーンJSONを選択肢へ反映するにはComfyUIを再起動して画面を再読み込みしてください。キャラクターはフォルダー名を直接入力するため、追加時の再起動は不要です。選択済みJSONの内容や画像を編集した場合、次回実行で読み直します。
+シーンJSONは`json_root`配下を実行時に再帰的に探索します。`scene`にファイル名または相対パスを入力してください。キャラクターはフォルダー名を直接入力するため、追加時の再起動は不要です。選択済みJSONの内容や画像を編集した場合、次回実行で読み直します。
 
 ## キャラクターJSON
 
@@ -71,7 +71,7 @@ comfyui-character-scene-package/
 
 全項目の一覧と詳しい記載例は [シーンJSONの書き方](../presets/scenes/README.md) を参照してください。
 
-`presets/scenes/`のJSONを選びます。`values`には画風、背景、照明、衣装ルールなど、`slots`には位置A／B／Cの配置・ポーズ・視線を保存します。
+`json_root`で指定したディレクトリ以下のJSONを使います。空欄なら`presets/scenes/`を使います。`values`には画風、背景、照明、衣装ルールなど、`slots`には位置A／B／Cの配置・ポーズ・視線を保存します。
 
 ```json
 {
@@ -133,3 +133,16 @@ character_c = None
 ```
 
 この例では、D:\CharacterReferences\character01\character.jsonを読み込みます。パスはComfyUIを実行しているPC上のものを指定します。新しい入力欄が表示されない場合は、ComfyUIを再起動してノードを追加し直してください。
+
+### シーンJSONの親ディレクトリを指定する
+
+```text
+character_root = D:\CharacterReferences
+json_root      = D:\ScenePresets
+scene          = outdoor/courtyard.json
+character_a    = character01
+```
+
+この例では`D:\ScenePresets\outdoor\courtyard.json`を読み込みます。`scene`に`courtyard.json`だけを入力した場合は、サブフォルダーも探索して一致するファイルを読み込みます。同名が複数ある場合はエラーに候補の相対パスを表示します。ファイルが見つからない場合は見つかったJSONを最大20件表示します。
+
+`character_root`と`json_root`は別々に設定でき、空欄ならそれぞれ既定の場所を使います。入力名は従来どおり`character_root`です。`scene`はドロップダウンからテキスト入力へ変更しています。コード更新後はComfyUIを再起動し、古い入力欄が残る場合はノードを追加し直してください。

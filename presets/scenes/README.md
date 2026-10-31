@@ -8,18 +8,18 @@ Build Scene Promptsで使う、背景・画風・衣装・配置・ポーズな�
 
 1. 同じフォルダーの [reference-layout.json](reference-layout.json) をコピーし、例えば`courtyard.json`として保存します。
 2. 必要な項目だけ編集します。文字コードはUTF-8です。
-3. ComfyUIを再起動して画面を再読み込みし、Build Sceneの`scene`でファイル名を選びます。
+3. Build Sceneの`json_root`にJSONを置いた親ディレクトリを入力し、`scene`にファイル名または相対パスを入力します。
 4. `character_root`にキャラクター参照の親フォルダーを指定し、`character_a`／`character_b`／`character_c`には、その配下にある人物フォルダー名を入力します。`character_root`が空欄なら従来の`examples/character-references/`を使います。使わない枠は`None`にします。
 5. ラフ画像をImage 01として生成側へ接続し、選択した人数分の参照画像出力とPositive／Negativeを接続します。
 
-配置先は`comfyui-character-scene-package/presets/scenes/`直下です。サブフォルダー内のJSONは一覧に出ません。選択済みファイルの内容を編集した場合は、次回実行時に読み直します。
+配置先はノードの`json_root`で指定します。空欄なら`comfyui-character-scene-package/presets/scenes/`を使います。サブフォルダーも再帰的に探索します。同じファイル名が複数ある場合は`outdoor/courtyard.json`のように相対パスで指定してください。追加・変更は次回実行時に読み直します。
 
 ## 基本構造
 
 | キー | 型 | 内容 |
 |---|---|---|
 | `schema_version` | 整数 | 必須。現在は`1` |
-| `name` | 文字列 | 任意の説明用名称。ノードの選択肢にはファイル名が表示される |
+| `name` | 文字列 | 任意の説明用名称。ファイルの指定には使用しない |
 | `values` | オブジェクト | 画風、背景、照明などの全体設定。省略可能 |
 | `slots` | オブジェクト | `a`／`b`／`c`ごとの位置、ポーズ、視線など。省略可能 |
 

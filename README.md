@@ -86,13 +86,14 @@ CharacterReferences/
 
 **[シーンJSONの書き方・全項目一覧](presets/scenes/README.md)** に、コピーして使える例と各設定の意味をまとめています。
 
-新しいシーンファイルを追加したら、ComfyUIを再起動して画面を再読み込みしてください。既存ファイルの内容変更は次回実行時に読み直します。
+シーンは`scene`欄へファイル名または相対パスを入力します。追加・編集したJSONは次回実行時に探索・読み込みます。
 
 ### 3. Build Scene Promptsを設定する
 
 | 入力 | 設定するもの |
 |---|---|
-| `scene` | 使用するシーンJSONのファイル名 |
+| `scene` | 使用するシーンJSONのファイル名、または`json_root`からの相対パス |
+| `json_root` | シーンJSONの親ディレクトリ。サブフォルダーも探索。空欄なら`presets/scenes/` |
 | `character_root` | キャラクターフォルダーの親ディレクトリ。空欄ならパッケージ内の`examples/character-references/` |
 | `character_a`／`character_b`／`character_c` | 親ディレクトリ配下のキャラクターフォルダー名。使わない枠は空欄または`None` |
 | `scene_overrides` | 今回だけ変更するシーン設定。通常は`{}` |

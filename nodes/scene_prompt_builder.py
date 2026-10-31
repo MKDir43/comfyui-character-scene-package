@@ -44,6 +44,33 @@ def inside(root, relative):
     return path
 
 
+def find_scene(root, selection):
+    """Resolve a relative path or find a unique JSON filename recursively."""
+    root = root.resolve()
+    if not root.is_dir():
+        raise ValueError(f"Scene JSON directory does not exist: {root}")
+    selection = selection.strip().replace("\\", "/")
+    if not selection or Path(selection).suffix.lower() != ".json":
+        raise ValueError("scene must be a JSON filename or relative path under json_root")
+    direct = inside(root, selection)
+    if "/" in selection:
+        if not direct.is_file():
+            raise ValueError(f"Scene JSON not found: {direct}")
+        return direct
+    candidates = sorted(
+        path for path in root.rglob("*.json")
+        if path.is_file() and path.resolve().is_relative_to(root)
+    )
+    matches = [path for path in candidates if path.name.casefold() == selection.casefold()]
+    if len(matches) == 1:
+        return matches[0].resolve()
+    if len(matches) > 1:
+        options = ", ".join(path.relative_to(root).as_posix() for path in matches)
+        raise ValueError(f"Multiple scene JSON files named {selection}. Use a relative path: {options}")
+    options = ", ".join(path.relative_to(root).as_posix() for path in candidates[:20]) or "(none)"
+    raise ValueError(f"Scene JSON not found: {selection} under {root}. Available JSON files (up to 20): {options}")
+
+
 def selected_templates(slots, templates=scene_templates):
     """Reuse the detailed template blocks verbatim; only vary occupied slots."""
     common, rest = templates.POSITIVE_TEMPLATE.split("\n[SCENE]\n", 1)
@@ -84,15 +111,17 @@ class ScenePromptTemplate:
 
     @classmethod
     def INPUT_TYPES(cls):
-        scenes = sorted(p.name for p in SCENE_ROOT.glob("*.json")) or ["None"]
         return {"required": {
-            "scene": (scenes,),
+            "scene": ("STRING", {"default": "reference-layout.json", "multiline": False,
+                "tooltip": "JSON filename searched recursively under json_root, or an explicit relative path."}),
             **{f"character_{slot}": ("STRING", {"default": "None", "multiline": False,
                  "tooltip": "Folder name under character_root containing character.json. Empty or None disables this slot."}) for slot in "abc"},
             "scene_overrides": ("STRING", {"default": "{}", "multiline": True, "dynamicPrompts": False}),
         }, "optional": {
             "character_root": ("STRING", {"default": "", "multiline": False,
                 "tooltip": f"Character reference directory on the ComfyUI server. Empty uses {DEFAULT_CHARACTER_ROOT}"}),
+            "json_root": ("STRING", {"default": "", "multiline": False,
+                "tooltip": f"Scene JSON directory, including subdirectories. Empty uses {SCENE_ROOT}"}),
         }}
 
     RETURN_TYPES = ("STRING", "STRING", "STRING", "IMAGE", "IMAGE", "IMAGE", "INT", "STRING")
@@ -104,11 +133,12 @@ class ScenePromptTemplate:
     def IS_CHANGED(cls, **kwargs):
         return float("nan")
 
-    def build(self, scene, character_a="None", character_b="None", character_c="None", scene_overrides="{}", character_root=""):
+    def build(self, scene, character_a="None", character_b="None", character_c="None", scene_overrides="{}", character_root="", json_root=""):
         reference_root = Path(character_root.strip()).expanduser().resolve() if character_root.strip() else DEFAULT_CHARACTER_ROOT.resolve()
         if not reference_root.is_dir():
             raise ValueError(f"Character reference directory does not exist: {reference_root}")
-        scene_data = read_json(inside(SCENE_ROOT, scene))
+        scene_root = Path(json_root.strip()).expanduser().resolve() if json_root.strip() else SCENE_ROOT
+        scene_data = read_json(find_scene(scene_root, scene))
         if set(scene_data) - {"schema_version", "name", "values", "slots"}:
             raise ValueError("Scene JSON: use schema_version, name, values and slots only")
         try:

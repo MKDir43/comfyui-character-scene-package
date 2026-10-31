@@ -140,6 +140,36 @@ class ScenePresetTests(unittest.TestCase):
                 builder.ScenePromptTemplate().build(
                     "test.json", character_a="red", scene_overrides='{"values":{"custom_instruction":"unsupported"}}')
 
+    def test_custom_json_root_recursive_lookup_and_relative_path(self):
+        custom = self.root / "scene library"
+        nested = custom / "outdoor" / "day"
+        nested.mkdir(parents=True)
+        (self.scenes / "test.json").rename(nested / "courtyard.json")
+        node = builder.ScenePromptTemplate()
+        recursive = node.build("courtyard.json", character_a="red", json_root=str(custom))
+        explicit = node.build("outdoor/day/courtyard.json", character_a="red", json_root=str(custom))
+        self.assertEqual(recursive[:3], explicit[:3])
+        self.assertIn("Standing at the gate", recursive[0])
+        duplicate = custom / "courtyard.json"
+        duplicate.write_bytes((nested / "courtyard.json").read_bytes())
+        with self.assertRaisesRegex(ValueError, "Multiple scene JSON"):
+            node.build("courtyard.json", character_a="red", json_root=str(custom))
+        self.assertEqual(explicit[:3], node.build(
+            "outdoor/day/courtyard.json", character_a="red", json_root=str(custom))[:3])
+
+    def test_json_root_errors_and_input_schema(self):
+        node = builder.ScenePromptTemplate()
+        with self.assertRaisesRegex(ValueError, "directory does not exist"):
+            node.build("test.json", character_a="red", json_root=str(self.root / "missing"))
+        with self.assertRaisesRegex(ValueError, "Available JSON files"):
+            node.build("missing.json", character_a="red")
+        with self.assertRaisesRegex(ValueError, "escapes"):
+            node.build("../outside.json", character_a="red")
+        schema = node.INPUT_TYPES()
+        self.assertEqual(schema["required"]["scene"][0], "STRING")
+        self.assertEqual(schema["optional"]["json_root"][0], "STRING")
+        self.assertEqual(schema["optional"]["character_root"][0], "STRING")
+
     def test_custom_root_and_empty_slots(self):
         other = self.root / "custom references"
         self.characters.rename(other)
